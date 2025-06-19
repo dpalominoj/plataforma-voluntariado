@@ -6,6 +6,7 @@ Flask-Login
 Werkzeug
 requests
 python-dotenv
+numpy
 scikit-learn
 pandas
 Flask-SocketIO
