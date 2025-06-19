@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}KONECTAi - Voluntariado Inclusivo{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'hr-inicio': '#a475ff',
+              'cl-inicio': '#9a66ff',
+              'hr-programa': '#f8ca0e',
+              'cl-programa': '#d3a701',
+              'hr-ayuda': '#f6e05e',
+              'cl-ayuda': '#faf089',
+              'hr-auth': '#e4f9ff',
+              'cl-auth': '#42cdfa',
+            }
+          }
+        }
+      }
+    </script>    
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.userway.org/widget.js" data-account="w1p59Fihx2" data-position="5"></script>
+    <style>
+      [x-cloak] { display: none !important; }
+      body.voice-recognizing-for-base {
+      }
+      #voiceChatButton:disabled {
+          background-color: #6B7280;
+          cursor: not-allowed;
+      }
+      #voiceChatButton:disabled svg {
+          stroke: #D1D5DB;
+      }
+      body.voice-recognizing-for-base #mainChatbotButton {
+        animation: pulse-animation 1.5s infinite;
+      }
+      @keyframes pulse-animation {
+        0% { box-shadow: 0 0 0 0px rgba(99, 102, 241, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+        100% { box-shadow: 0 0 0 0px rgba(99, 102, 241, 0); }
+      }
+    </style>
+  </head>
+  <body x-data="{ openMobileMenu: false }" class="text-base">
+    <nav class="{{ nav_bg }} text-black fixed top-0 w-full border-b-8 {{ border_color }} z-50" >
+      <div class="container mx-auto h-20 px-4 py-3 md:flex md:items-center md:justify-between">
+        <div class="flex justify-between items-center text-xl">
+          <a class="text-xl hover:text-purple-200 flex items-center" href="{{ url_for('main.home') }}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1.5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0M7.414 15.414a2 2 0 11-2.828-2.828l3-3a2 2 0 012.828 0M4 8a1 1 0 011.447-.894l4 2a1 1 0 010 1.788l-4 2A1 1 0 014 12V8z" clip-rule="evenodd" />
+            </svg>
+            <span class="font-bold tracking-tight">KONECT</span><span class="font-medium tracking-tight text-white">Ai</span>
+          </a>
+          
+          <!-- Icono de Notificacion Movil-->
+          <div class="md:hidden flex items-center">
+            <button class="p-2 rounded-full text-white hover:text-gray-300 focus:outline-none focus:bg-gray-700" aria-label="Notifications_mobile">
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+              </svg>
+            </button>
+            
+            <!-- Icono de Menu Movil -->
+            <button @click="openMobileMenu = !openMobileMenu" type="button" class="p-2 rounded-full text-white hover:text-gray-300 focus:outline-none focus:bg-gray-700 transition duration-200 ease-in-out"  aria-label="Menu_mobile">
+              <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile Menu / Desktop Links -->
+        <div :class="{'block': openMobileMenu, 'hidden': !openMobileMenu}" class="mobile-menu-container md:flex md:items-center w-full md:w-auto md:bg-transparent shadow-lg md:shadow-none" x-cloak>
+          <ul class="md:flex flex-col md:flex-row md:space-x-4 mt-4 md:mt-0 text-gray-800 font-bold">
+            <li><a href="{{ url_for('main.home') }}" class="block py-2 px-3 hover:bg-purple-600 hover:text-white rounded">Inicio</a></li>
+            <li><a href="{{ url_for('main.programs') }}" class="block py-2 px-3 hover:bg-purple-600 hover:text-white rounded">Programas</a></li>
+            <li><a href="{{ url_for('main.help_page') }}" class="block py-2 px-3 hover:bg-purple-600 hover:text-white rounded">Ayuda</a></li>
+          </ul>
+
+          <ul class="md:flex md:items-center flex-col md:flex-row md:space-x-4 mt-4 md:mt-0 md:ml-auto font-bold">
+            {% if current_user.is_authenticated %}
+            <li class="mr-2 hidden md:block"> {# Or ml-2 depending on placement relative to user menu #}
+              <button class="p-2 rounded-full text-white hover:text-purple-200 focus:outline-none focus:bg-purple-600" aria-label="Notifications">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                </svg>
+              </button>
+            </li>
+            <li class="relative" x-data="{ openUserMenu: false }" @click.away="openUserMenu = false">
+              <button @click="openUserMenu = !openUserMenu" class="flex items-center w-full text-left py-2 px-3 text-white hover:text-purple-200 rounded focus:outline-none focus:bg-purple-600">
+                <svg class="h-6 w-6 mr-2 inline-block" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                </svg>
+                {{ current_user.nombre }} ({{ current_user.perfil | capitalize }})
+                <svg class="h-5 w-5 ml-1 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"></path></svg>
+              </button>
+              <div x-show="openUserMenu" x-cloak class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 ring-1 ring-black ring-opacity-5">
+                <a href="{{ url_for('user_dashboard.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50">Mi Panel</a>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50">Configuración</a>
+                <hr class="border-t border-gray-200 my-1">
+                <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50">Cerrar Sesión</a>
+              </div>
+            </li>
+            {% else %}
+            <div class="ml-2"><li><a href="{{ url_for('auth.login') }}" class="block py-2 px-4 text-sm text-purple-700 bg-white rounded-md hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">Iniciar Sesión</a></li></div>
+            <div class="ml-2"><li><a href="{{ url_for('auth.register') }}" class="block py-2 px-4 text-sm text-white bg-purple-600 rounded-md hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-400">Registrarse</a></li></div>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container mx-auto py-4 px-4 mt-24">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            {# Define color classes based on category #}
+            {% set alert_classes = {
+              'info': 'bg-blue-100 border-blue-500 text-blue-700',
+              'success': 'bg-green-100 border-green-500 text-green-700',
+              'warning': 'bg-yellow-100 border-yellow-500 text-yellow-700',
+              'danger': 'bg-red-100 border-red-500 text-red-700',
+              'error': 'bg-red-100 border-red-500 text-red-700',
+              'message': 'bg-gray-100 border-gray-500 text-gray-700'
+            } %}
+            {% set chosen_class = alert_classes.get(category, alert_classes['message']) %}
+            <div class="{{ chosen_class }} border-l-4 p-4 mb-4 relative" role="alert" x-data="{ show: true }" x-show="show" x-transition x-cloak>
+              <div class="flex">
+                <div class="py-1">
+                  {% if category == 'info' %}
+                    <svg class="fill-current h-6 w-6 text-blue-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v2H9zm0 4V13h2v2H9z"/></svg>
+                  {% elif category == 'success' %}
+                    <svg class="fill-current h-6 w-6 text-green-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM6.7 9.29L9 11.6l4.3-4.3 1.4 1.42L9 14.4l-3.7-3.7 1.4-1.42z"/></svg>
+                  {% elif category == 'warning' %}
+                    <svg class="fill-current h-6 w-6 text-yellow-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 5v6h2V5H9zm0 8v2h2v-2H9z"/></svg>
+                  {% elif category == 'error' or category == 'danger' %}
+                    <svg class="fill-current h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v2H9zm0 4V13h2v2H9zm6.36-3.64A4.002 4.002 0 0112 14a4 4 0 01-4-4c0-1.48.8-2.77 2-3.46V4h4v2.54c1.2.69 2 1.98 2 3.46z" fill-rule="evenodd" clip-rule="evenodd"/></svg>
+                  {% endif %}
+                </div>
+                <div class="flex-grow">
+                  <p class="font-bold capitalize">{{ 'Error' if category == 'danger' else category|capitalize }}</p> {# Display 'Error' for 'danger' category, capitalize others #}
+                  <p class="text-sm">{{ message }}</p>
+                </div>
+                <button @click="show = false" type="button" class="ml-auto -mx-1.5 -my-1.5 p-1.5 inline-flex h-8 w-8 items-center justify-center rounded-lg focus:ring-2 {{ chosen_class.replace('bg-', 'focus:ring-').replace('border-', 'hover:bg-').replace('100', '200').replace('text-', 'hover:text-') }}">
+                  <span class="sr-only">Descartar</span>
+                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </button>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="container mx-auto mt-10 py-6 text-center text-gray-500 border-t border-gray-200">
+      copyright 2025 KONECTAi - Voluntariado Inclusivo
+    </footer>
+
+    <!-- Chatbot Icon and Menu -->
+    <div x-data="{ openChatbotMenu: false }" class="fixed bottom-4 right-4 z-40">
+      <!-- Chatbot Icon Button -->
+      <button id="mainChatbotButton" @click="openChatbotMenu = !openChatbotMenu" aria-label="Abrir menú del chatbot" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 5.523-4.477 10-10 10S1 17.523 1 12 5.477 2 11 2s10 4.477 10 10z" />
+        </svg>
+      </button>
+
+      <!-- Chatbot Menu -->
+      <div x-show="openChatbotMenu"
+           @click.away="openChatbotMenu = false"
+           class="absolute bottom-16 right-0 mb-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5"
+           x-transition:enter="transition ease-out duration-100"
+           x-transition:enter-start="transform opacity-0 scale-95"
+           x-transition:enter-end="transform opacity-100 scale-100"
+           x-transition:leave="transition ease-in duration-75"
+           x-transition:leave-start="transform opacity-100 scale-100"
+           x-transition:leave-end="transform opacity-0 scale-95"
+           x-cloak>
+        <button id="voiceChatTrigger" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">
+          Chatbot por voz
+        </button>
+        <a href="{{ url_for('main.help_page') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">
+          Chatbot por chat
+        </a>
+      </div>
+    </div>
+    <!-- End Chatbot Icon and Menu -->
+
+    <script src="{{ url_for('static', filename='js/base_chatbot.js') }}" defer></script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-WTF
+Flask-Login
+Werkzeug
+requests
+python-dotenv
+scikit-learn
+pandas
+Flask-SocketIO

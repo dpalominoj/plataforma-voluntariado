@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% set nav_bg = "bg-hr-inicio" %}
+{% set border_color = "border-cl-inicio" %}
+{% block title %}Inicio - KONECTAi{% endblock %}
+
+{% block content %}
+  <!-- Hero -->
+<div class="bg-[#E9B57F] text-white py-6 relative"
+     style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
+  <div class="mx-auto px-4 lg:pl-12 flex flex-col md:flex-row items-center justify-between gap-12">
+    <div class="text-center md:text-left max-w-2xl lg:max-w-4xl">
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+        Voluntariado Inclusivo<br>
+        <span class="text-indigo-600">Para un mundo mejor</span>
+      </h1>
+      <p class="text-xl md:text-2xl mb-8">
+        Únete a nuestra comunidad de voluntarios y marca la diferencia en la vida de quienes más lo necesitan. Creamos espacios inclusivos para todos.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+        <button class="bg-white text-purple-700 hover:bg-purple-50 font-bold py-3 px-8 rounded-full transition-all shadow-lg hover:shadow-xl">
+          <a href="{{ url_for('auth.login') }}" class="no-underline">Comenzar ahora</a>
+        </button>
+        <button class="bg-transparent border-2 border-white hover:bg-white hover:text-purple-700 font-bold py-3 px-8 rounded-full transition-all">
+          <a href="{{ url_for('main.programs') }}" class="no-underline">Conocer más</a>
+        </button>
+      </div>
+    </div>
+    <div class="w-full md:w-1/2 flex justify-center hidden md:block">
+      <svg class="w-full max-w-md" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="250" cy="150" r="100" fill="#ffffff" fill-opacity="0.2"></circle>
+        <g transform="translate(150, 50)">
+          <circle cx="50" cy="50" r="40" fill="#ffffff"></circle>
+          <circle cx="65" cy="40" r="10" fill="#4f46e5"></circle>
+          <circle cx="35" cy="40" r="10" fill="#4f46e5"></circle>
+          <path d="M30,65 Q50,80 70,65" stroke="#4f46e5" stroke-width="3" fill="none"></path>
+        </g>
+        <g transform="translate(250, 50)">
+          <circle cx="50" cy="50" r="40" fill="#ffffff"></circle>
+          <circle cx="65" cy="40" r="10" fill="#4f46e5"></circle>
+          <circle cx="35" cy="40" r="10" fill="#4f46e5"></circle>
+          <path d="M30,65 Q50,80 70,65" stroke="#4f46e5" stroke-width="3" fill="none"></path>
+        </g>
+        <g transform="translate(200, 150)">
+          <circle cx="50" cy="50" r="40" fill="#ffffff"></circle>
+          <circle cx="65" cy="40" r="10" fill="#4f46e5"></circle>
+          <circle cx="35" cy="40" r="10" fill="#4f46e5"></circle>
+          <path d="M30,65 Q50,80 70,65" stroke="#4f46e5" stroke-width="3" fill="none"></path>
+        </g>
+        <path d="M200,100 Q250,50 300,100" stroke="#ffffff" stroke-width="3" fill="none"></path>
+        <path d="M200,200 Q250,250 300,200" stroke="#ffffff" stroke-width="3" fill="none"></path>
+        <path d="M250,150 L250,200" stroke="#ffffff" stroke-width="3" fill="none"></path>
+      </svg>		
+    </div>
+  </div>
+</div>
+
+    <section class="py-8 text-center max-w-6xl mx-auto px-4">
+      <h1 class="text-4xl font-bold mb-4 text-gray-800">Nuestros Programas de Voluntariado</h1>
+      <p class="text-xl text-gray-600 mb-8">Ofrecemos oportunidades según tus habilidades e intereses.</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <article class="futuristic-card bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-in-out">
+          <div class="text-5xl p-8 bg-emerald-500 text-white flex items-center justify-center rounded-t-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v11.494m0 0a8.485 8.485 0 0011.92 0M12 17.747a8.485 8.485 0 01-11.92 0M12 6.253c1.657 0 3-1.007 3-2.25S13.657 1.753 12 1.753s-3 1.007-3 2.25S10.343 6.253 12 6.253z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.079 9.421c.408-.524.962-.949 1.561-1.275M20.921 9.421c-.408-.524-.962-.949-1.561-1.275M12 17.747v2.506c0 .828.672 1.5 1.5 1.5h6.506c.828 0 1.5-.672 1.5-1.5v-2.506M12 17.747v2.506c0 .828-.672 1.5-1.5 1.5H3.994c-.828 0-1.5-.672-1.5-1.5v-2.506" />
+              </svg>
+          </div>
+          <div class="p-6 rounded-b-lg">
+			  <h3 class="text-2xl font-semibold mb-2 text-gray-800">Educación Inclusiva</h3>
+			  <p class="text-gray-600 mb-4 text-base">Apoya a estudiantes con necesidades especiales.</p>
+			  <button class="glow-button bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-6 rounded-full transition-all">
+                <a class="text-white no-underline" href="{{ url_for('auth.register') }}">Inscribirse</a>
+              </button>
+		  </div>
+        </article>
+		<article class="futuristic-card bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-in-out">
+          <div class="text-5xl p-8 bg-orange-500 text-white flex items-center justify-center rounded-t-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 8.39l-2.123 2.122a3.105 3.105 0 00-.888.888l-2.122 2.123m5.021-5.021a5.25 5.25 0 017.424 7.424l-7.424-7.424zM3.204 16.996L2.75 12.5m0 0l4.496-4.496a5.25 5.25 0 017.424 7.424L7.25 16.996M2.75 12.5h9.5" />
+              </svg>
+          </div>
+		  <div class="p-6 rounded-b-lg">
+			  <h3 class="text-2xl font-semibold mb-2 text-gray-800">Medio Ambiente</h3>
+			  <p class="text-gray-600 mb-4 text-base">Participa en proyectos de reforestación.</p>
+			  <button class="glow-button bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-full transition-all">
+                <a class="text-white no-underline" href="{{ url_for('auth.register') }}">Inscribirse</a>
+              </button>
+		  </div>
+        </article>
+		<article class="futuristic-card bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-in-out">
+          <div class="text-5xl p-8 bg-indigo-500 text-white flex items-center justify-center rounded-t-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 016-6h6M21 15h-3A5.978 5.978 0 0012.75 8.75M21 15v-2a4 4 0 00-4-4H9.5a4 4 0 00-4 4v2M21 15v2a4 4 0 01-4 4H9.5a4 4 0 01-4-4v-2" />
+              </svg>
+          </div>
+		  <div class="p-6 rounded-b-lg">
+			  <h3 class="text-2xl font-semibold mb-2 text-gray-800">Apoyo Comunitario</h3>
+			  <p class="text-gray-600 mb-4 text-base">Colabora en comedores sociales y visitas a residencias de ancianos.</p>
+			  <button class="glow-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-full transition-all">
+                <a class="text-white no-underline" href="{{ url_for('auth.register') }}"">Inscribirse</a>
+              </button>
+		  </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Impacto -->
+    <section class="py-16 bg-gray-50">
+      <div class="max-w-6xl mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-4 text-gray-800">Nuestro Impacto</h2>
+        <p class="text-xl text-gray-600 mb-12">Juntos construimos un mundo más inclusivo.</p>
+        <div class="flex flex-col md:flex-row justify-center gap-12 md:gap-24">
+          <div class="stat-item">
+            <div class="text-5xl mb-4 text-indigo-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.08-.94-1-2-.591-.872-1.696-1.442-3.478-1.763M7 16H5m2 0v1a3 3 0 01-3 3H3m12 0v-1m0 3H9m12 0a9 9 0 00-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                </svg>
+            </div>
+            <h3 class="text-4xl font-bold text-indigo-600 mb-2">5,000+</h3>
+            <p class="text-gray-600 text-base">Voluntarios activos</p>
+          </div>
+          <div class="stat-item">
+            <div class="text-5xl mb-4 text-indigo-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+            </div>
+            <h3 class="text-4xl font-bold text-indigo-600 mb-2">120+</h3>
+            <p class="text-gray-600 text-base">Proyectos realizados</p>
+          </div>
+          <div class="stat-item">
+            <div class="text-5xl mb-4 text-indigo-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </div>
+            <h3 class="text-4xl font-bold text-indigo-600 mb-2">50+</h3>
+            <p class="text-gray-600 text-base">Comunidades beneficiadas</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonios -->
+    <section class="py-16 max-w-6xl mx-auto px-4">
+      <h2 class="text-3xl font-bold mb-4 text-center text-gray-800">Testimonios</h2>
+      <p class="text-xl text-gray-600 mb-12 text-center">Conoce las experiencias de nuestros voluntarios.</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="futuristic-card bg-white p-6 rounded-lg shadow-md">
+          <div class="flex items-center gap-4 mb-4">
+			<div class="w-10 h-10 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold">M</div>
+			<h4 class="text-lg font-semibold">María González</h4>
+		  </div>
+-		  <p class="text-base text-gray-500 mb-3">Voluntaria desde 2020</p>
+          <p class="text-gray-700 text-base">"Inscribirse en los programas de voluntariado inclusivo ha sido una de las experiencias más enriquecedoras de mi vida."</p>
+        </div>
+		<div class="futuristic-card bg-white p-6 rounded-lg shadow-md">
+          <div class="flex items-center gap-4 mb-4">
+			<div class="w-10 h-10 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold">J</div>
+			<h4 class="text-lg font-semibold">Juan Pérez</h4>
+		  </div>
+-		  <p class="text-base text-gray-500 mb-3">Beneficiario</p>
+          <p class="text-gray-700 text-base">"Gracias a los programas educativos inclusivos, mi hijo ha podido desarrollar habilidades que pensábamos imposibles."</p>
+        </div>
+		<div class="futuristic-card bg-white p-6 rounded-lg shadow-md">
+          <div class="flex items-center gap-4 mb-4">
+			<div class="w-10 h-10 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold">L</div>
+			<h4 class="text-lg font-semibold">Laura Martínez</h4>			
+		  </div>
+-		  <p class="text-base text-gray-500 mb-3">Coordinadora</p>
+          <p class="text-gray-700 text-base">"Ver cómo personas de diferentes capacidades trabajan juntas por un objetivo común es inspirador."</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-16 bg-purple-600 text-white">
+      <div class="max-w-4xl mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-4">¿Listo para unirte?</h2>
+        <p class="text-xl mb-8 opacity-90">Ayúdanos a construir un mundo inclusivo.</p>
+        <button id="ctaSignUpBtn" onclick="abrirRegistro()" class="glow-button bg-white text-purple-700 hover:bg-purple-50 font-bold py-3 px-8 rounded-full text-lg transition-all">
+          Registrarse ahora
+        </button>
+      </div>
+    </section>
+
+{% endblock %}

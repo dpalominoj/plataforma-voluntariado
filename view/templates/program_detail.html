@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% set nav_bg = "bg-hr-programa" %}
+{% set border_color = "border-cl-programa" %}
+{% block title %}{{ program.nombre }} - Detalles del Programa - KONECTAi{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white shadow-2xl rounded-lg overflow-hidden">
+        {# Program Image Banner #}
+        <div class="w-full h-80 bg-gray-300">
+            {% if program.imagen %}
+                <img src="{{ url_for('static', filename='imagenes/' + program.imagen) }}" alt="{{ program.nombre }}" class="w-full h-full object-cover">
+            {% else %}
+                <div class="w-full h-full flex items-center justify-center">
+                    <svg class="h-32 w-32 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="p-8 md:p-10">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-1 tracking-tight">{{ program.nombre }}</h1>
+            <p class="text-base text-gray-600 mb-2">Publicado por: <span class="font-semibold">{{ program.organizacion.nombre_org if program.organizacion else 'Organización no especificada' }}</span></p>
+
+            {% if program.compatibilidad is not none %}
+            <div class="my-4 p-3 rounded-md {% if program.compatibilidad >= 75 %}bg-green-50 border-l-4 border-green-500{% elif program.compatibilidad >= 50 %}bg-yellow-50 border-l-4 border-yellow-500{% else %}bg-red-50 border-l-4 border-red-500{% endif %}">
+                 <p class="text-lg font-semibold {% if program.compatibilidad >= 75 %}text-green-700{% elif program.compatibilidad >= 50 %}text-yellow-700{% else %}text-red-700{% endif %}">
+                    <span class="text-2xl">✨</span> Compatibilidad Contigo: <span class="font-bold">{{ "%.0f"|format(program.compatibilidad|float) }}%</span>
+                 </p>
+                 <p class="text-sm {% if program.compatibilidad >= 75 %}text-green-600{% elif program.compatibilidad >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">Calculada según tus intereses y habilidades.</p>
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8 mb-8">
+                <div class="lg:col-span-2">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Descripción del Programa</h2>
+                    <p class="text-gray-700 whitespace-pre-wrap leading-relaxed prose max-w-none">{{ program.descripcion if program.descripcion else 'No hay descripción detallada disponible.' }}</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Detalles Clave</h2>
+                    <dl class="space-y-4">
+                        <div>
+                            <dt class="font-semibold text-gray-700 flex items-center"><span class="mr-2 text-purple-600">📅</span>Fecha y Hora:</dt>
+                            <dd class="mt-1 text-gray-800 pl-6">{{ program.fecha_actividad.strftime('%d/%m/%Y %H:%M Hs') if program.fecha_actividad else 'No especificada' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="font-semibold text-gray-700 flex items-center"><span class="mr-2 text-purple-600">📍</span>Ubicación:</dt>
+                            <dd class="mt-1 text-gray-800 pl-6">{{ program.ubicacion if program.ubicacion else 'No especificada' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="font-semibold text-gray-700 flex items-center"><span class="mr-2 text-purple-600">💻</span>Modalidad:</dt>
+                            <dd class="mt-1 text-gray-800 pl-6">{{ program.tipo.value if program.tipo else 'No especificado' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="font-semibold text-gray-700 flex items-center"><span class="mr-2 text-purple-600">📊</span>Estado Actual:</dt>
+                            <dd class="mt-1 text-gray-800 pl-6">{{ program.estado.value if program.estado else 'No especificado' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="font-semibold text-gray-700 flex items-center"><span class="mr-2 text-purple-600">👥</span>Cupos Disponibles:</dt>
+                            <dd class="mt-1 text-gray-800 pl-6">{{ program.cupo_maximo if program.cupo_maximo is not none else 'Ilimitados' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="font-semibold text-gray-700 flex items-center"><span class="mr-2 text-purple-600">♿</span>¿Es Inclusiva?:</dt>
+                            <dd class="mt-1 text-gray-800 pl-6">
+                                {% if program.es_inclusiva %}
+                                    <span class="px-2 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800">Sí</span>
+                                    {% if program.discapacidades %}
+                                        <ul class="list-disc list-inside ml-2 mt-2 text-base space-y-1">
+                                        {% for disc in program.discapacidades %}
+                                            <li class="text-gray-700">{{ disc.nombre.value }}</li>
+                                        {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                     <p class="text-sm text-gray-500 mt-1">Detalles específicos de inclusión no provistos.</p>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="px-2 inline-flex text-sm leading-5 font-semibold rounded-full bg-red-100 text-red-800">No</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                        {% if program.etiqueta %}
+                        <div>
+                            <dt class="font-semibold text-gray-700 flex items-center"><span class="mr-2 text-purple-600">🏷️</span>Categoría:</dt>
+                            <dd class="mt-1 text-gray-800 pl-6">{{ program.etiqueta }}</dd>
+                        </div>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+
+            {% if program.habilidades_requeridas %}
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Habilidades Requeridas</h2>
+                <p class="text-gray-700 whitespace-pre-wrap leading-relaxed prose max-w-none">{{ program.habilidades_requeridas }}</p>
+            </div>
+            {% endif %}
+
+            {% if program.requisitos_adicionales %}
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Requisitos Adicionales</h2>
+                <p class="text-gray-700 whitespace-pre-wrap leading-relaxed prose max-w-none">{{ program.requisitos_adicionales }}</p>
+            </div>
+            {% endif %}
+
+            {% if program.facilidades %}
+            <div class="mb-8 pt-6 border-t border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">🚧 Facilidades y Accesibilidad</h2>
+                <ul class="list-disc list-inside text-gray-700 space-y-2 prose max-w-none">
+                    {% for fac in program.facilidades %}
+                    <li><strong>{{ fac.nombre_facilidad }}</strong>{% if fac.descripcion %}: {{ fac.descripcion }}{% endif %}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <div class="mt-10 pt-8 border-t border-gray-300 text-center">
+                {% if current_user.is_authenticated %}
+                    {% if current_user.perfil == 'voluntario' %}
+                        <form method="POST" action="{{ url_for('program.enroll_program', program_id=program.id_actividad) }}" class="inline-block">
+                            <button type="submit" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-lg font-semibold rounded-lg shadow-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-150 ease-in-out transform hover:scale-105">
+                                <svg class="-ml-1 mr-3 h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                Inscribirse a este Programa
+                            </button>
+                        </form>
+                    {% else %}
+                        <button type="button" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-lg font-semibold rounded-lg text-gray-500 bg-gray-300 cursor-not-allowed shadow-md" disabled>
+                            <svg class="-ml-1 mr-3 h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                            Solo voluntarios pueden inscribirse
+                        </button>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ url_for('auth.register') }}" onclick="alert('Por favor, créate una cuenta para inscribirte');" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-lg font-semibold rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out transform hover:scale-105">
+                        <svg class="-ml-1 mr-3 h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                        Inscribirse (Crear Cuenta)
+                    </a>
+                {% endif %}
+                <a href="{{ url_for('main.programs') }}" class="mt-4 md:mt-0 md:ml-4 inline-flex items-center justify-center px-6 py-3 border border-gray-400 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out">
+                    <svg class="-ml-1 mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                    Volver a Programas
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% set nav_bg = "bg-hr-auth" %}
+{% set border_color = "border-cl-auth" %}
+{% block title %}Panel - KONECTAi{% endblock %}
+
+{% block content %}
+{# The main content area in base.html already has mt-24.
+   This dashboard container will try to fill the remaining vertical space.
+   A common approach for a sticky footer or full-height sidebar layout is to make html, body 100% height.
+   However, since we are within a content block, we'll use flex to fill.
+   The parent of this 'content' block is <main class="container mx-auto px-4 mt-24">
+   To make this truly fill height, base.html's body and its main content wrapper might need more flex/height properties.
+   For now, this will make the dashboard itself a flex container with a minimum height.
+#}
+<div class="flex flex-col md:flex-row bg-gray-100 rounded-lg shadow -mx-4 -my-4 md:min-h-[calc(100vh-8rem)]">
+    {# Negative margins to expand to container edges if parent has padding, remove if not desired #}
+    {# Adjusted min-height assuming approx 6rem for nav and 2rem for footer/margins from base.html #}
+
+    <nav class="w-full md:w-64 bg-gray-50 p-5 border-r border-gray-300 flex-shrink-0">
+        <h3 class="text-xl font-semibold text-gray-800 mb-6">Menú del Panel</h3>
+        <ul class="space-y-2">
+            <li>
+                <a href="{{ url_for('main.home') }}"
+                   class="block py-2.5 {% if request.endpoint == 'main.home' %}bg-purple-100 text-purple-700 font-semibold border-l-4 border-purple-500 pl-3 pr-4{% else %}px-4 text-gray-700 hover:bg-purple-100 hover:text-purple-700{% endif %} rounded-md text-sm transition-colors duration-150">
+                   Inicio del Sitio
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('user_dashboard.profile') }}"
+                   class="block py-2.5 {% if request.endpoint == 'user_dashboard.profile' %}bg-purple-100 text-purple-700 font-semibold border-l-4 border-purple-500 pl-3 pr-4{% else %}px-4 text-gray-700 hover:bg-purple-100 hover:text-purple-700{% endif %} rounded-md text-sm transition-colors duration-150">
+                   Mi Perfil
+                </a>
+            </li>
+            <!-- Role-specific links will be added by child templates -->
+            {% block dashboard_sidebar_links %}{% endblock %}
+        </ul>
+    </nav>
+
+    <main class="flex-grow p-6 md:p-8 bg-white">
+        {% block dashboard_main_content %}
+            <h1 class="text-2xl font-semibold text-gray-800">¡Bienvenido a tu Panel!</h1>
+            <p class="mt-2 text-gray-600">Selecciona una opción del menú para comenzar.</p>
+        {% endblock %}
+    </main>
+</div>
+{% endblock %}

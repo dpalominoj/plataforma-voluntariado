@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% set nav_bg = "bg-hr-programa" %}
+{% set border_color = "border-cl-programa" %}
+{% block title %}Programas - KONECTAi{% endblock %}
+
+{% block content %}
+<div class="py-12 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="lg:text-center">
+            <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                Programas Disponibles
+            </h2>
+            <p class="mt-4 max-w-2xl text-xl text-gray-600 lg:mx-auto">
+                Encuentra un programa que te interese y descubre cómo puedes contribuir.
+            </p>
+        </div>
+
+        <!-- Filter Form -->
+        <form method="GET" action="{{ url_for('main.programs') }}" class="my-8 p-6 bg-white shadow rounded-lg md:flex md:justify-between md:items-start">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:flex-grow">
+                <div>
+                    <label for="tipo" class="block text-sm font-medium text-gray-700">Tipo de Programa</label>
+                    <select name="tipo" id="tipo" class="mt-1 block w-full pl-3 pr-3 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-base rounded-md">
+                        <option value="">Todos</option>
+                        {% for t in tipos %}
+                        <option value="{{ t }}" {% if current_filters.get('tipo') == t %}selected{% endif %}>{{ t }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="organizacion" class="block text-sm font-medium text-gray-700">Organización</label>
+                    <select name="organizacion" id="organizacion" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-base rounded-md">
+                        <option value="">Todas</option>
+                        {% for org in organizaciones %}
+                        <option value="{{ org.id_organizacion }}" {% if current_filters.get('organizacion') | string == org.id_organizacion | string %}selected{% endif %}>{{ org.nombre_org }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="enfoque_inclusivo" class="block text-sm font-medium text-gray-700">Enfoque Inclusivo</label>
+                    <select name="enfoque_inclusivo" id="enfoque_inclusivo" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-base rounded-md">
+                        <option value="" {% if not current_filters.get('enfoque_inclusivo') %}selected{% endif %}>Cualquiera</option>
+                        {% for disc in discapacidades_filter_options %}
+                        <option value="{{ disc.nombre.value }}" {% if current_filters.get('enfoque_inclusivo') == disc.nombre.value %}selected{% endif %}>
+                            {{ disc.nombre.value }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="estado" class="block text-sm font-medium text-gray-700">Estado del Programa</label>
+                    <select name="estado" id="estado" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-base rounded-md">
+                        <option value="">Todos</option>
+                        {% for est in estados %}
+                        <option value="{{ est }}" {% if current_filters.get('estado') == est %}selected{% endif %}>{{ est }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="preferencia" class="block text-sm font-medium text-gray-700">Preferencias</label>
+                    <select name="preferencia" id="preferencia" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-base rounded-md">
+                        <option value="">Todas</option>
+                        {% for pref in preferencias_filter_options %}
+                        <option value="{{ pref.id_preferencia }}" {% if current_filters.get('preferencia') | string == pref.id_preferencia | string %}selected{% endif %}>{{ pref.nombre_corto }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="md:ml-6 md:mt-0 flex items-center">
+                <button type="submit" class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 text-base">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L13 10.414V15a1 1 0 01-.293.707l-2 2A1 1 0 019 17v-6.586L4.293 6.707A1 1 0 014 6V3z" clip-rule="evenodd" />
+                    </svg>
+                    Aplicar Filtros
+                </button>
+                <a href="{{ url_for('main.programs') }}" class="ml-3 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm1.135 9.865A5.002 5.002 0 0014.001 13H11a1 1 0 010-2h5a1 1 0 011 1v5a1 1 0 01-1 1v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 111.885-.666z" clip-rule="evenodd" />
+                    </svg>
+                    Limpiar Filtros
+                </a>
+            </div>
+        </form>
+        <!-- End Filter Form -->
+
+        {% if programs %}
+            <div class="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                {% for program in programs %}
+                <div class="flex flex-col rounded-lg shadow-lg overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-in-out">
+                    <div class="h-48 w-full flex-shrink-0"> <!-- Added flex-shrink-0 here as it was on the parent of the original img -->
+                        {% if program.imagen and program.imagen != 'ninguno.jpg' %}
+                            <img class="h-48 w-full object-cover" src="{{ url_for('static', filename='imagenes/' + program.imagen) }}" alt="{{ program.nombre }}">
+                        {% else %}
+                            <div class="h-48 w-full bg-indigo-100 flex items-center justify-center">
+                                <svg class="h-16 w-16 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+                                {# <p class="text-xs text-gray-500 mt-1">Imagen no disponible</p> #}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1 bg-white p-6 flex flex-col justify-between">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-purple-600">
+                                {{ program.organizacion.nombre_org if program.organizacion else "No disponible" }}
+                            </p>
+                            <a href="#" class="block mt-2">
+                                <p class="text-xl font-semibold text-gray-900">
+                                    {{ program.nombre }}
+                                </p>
+                                <p class="mt-3 text-base text-gray-500">
+                                    {{ (program.descripcion if program.descripcion else "No hay descripción disponible.") | truncate(150, True, '...', 0) }}
+                                </p>
+                            </a>
+                        </div>
+                        {% if program.id_actividad in compatibility_scores and compatibility_scores[program.id_actividad] is not none %}
+                            <p class="mt-3 text-sm font-medium text-green-600">
+                                Tu Compatibilidad: {{ "%.2f"|format(compatibility_scores[program.id_actividad]) }}%
+                            </p>
+                        {% endif %}
+                        <div class="mt-6 flex items-center">
+                            {# Placeholder for organizer avatar - could be added to user model #}
+                            {# <div class="flex-shrink-0">
+                                <a href="#">
+                                    <span class="sr-only">{{ program.organizador.nombre_org if program.organizador else "No disponible" }}</span>
+                                    <img class="h-10 w-10 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">
+                                </a>
+                            </div> #}
+                            <div class="ml-auto flex space-x-3">
+                                {% if current_user.is_authenticated %}
+                                    {% if current_user.perfil == 'voluntario' %}
+                                        <form method="POST" action="{{ url_for('program.enroll_program', program_id=program.id_actividad) }}">
+                                            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Inscribirse</button>
+                                        </form>
+                                    {% else %}
+                                        <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-400 bg-gray-200 cursor-not-allowed" disabled>Solo voluntarios</button>
+                                        {# Alternatively, use: <span class="text-sm text-gray-500">Solo los voluntarios pueden inscribirse.</span> #}
+                                    {% endif %}
+                                {% else %}
+                                    <a href="{{ url_for('auth.register') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">Inscribirse (Crear Cuenta)</a>
+                                {% endif %}
+                                <a href="{{ url_for('program.view_program_detail', program_id=program.id_actividad) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                                    Ver Detalles
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="mt-12 bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 3.001-1.742 3.001H4.42c-1.53 0-2.493-1.667-1.743-3.001l5.58-9.92zM10 11a1 1 0 110-2 1 1 0 010 2zm0-3a1 1 0 00-1 1v1a1 1 0 102 0V9a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-base text-yellow-700">
+                            No hay programas disponibles en este momento. Por favor, inténtalo de nuevo más tarde.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

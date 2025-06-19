@@ -1,0 +1,195 @@
+{% extends "dashboard.base.html" %}
+
+{% block title %}Panel de Organizador - KONECTAi{% endblock %}
+
+{% block dashboard_sidebar_links %}
+    <hr class="my-2 border-gray-200">
+    <li>
+        <a href="{{ url_for('user_dashboard.organizer_my_programs') if 'user_dashboard.organizer_my_programs' in get_flashed_messages(category_filter=['url_exists']) else '#' }}"
+           class="block py-2.5 px-4 text-gray-700 hover:bg-purple-100 hover:text-purple-700 rounded-md text-sm transition-colors duration-150 {% if request.endpoint == 'user_dashboard.organizer_my_programs' %}bg-purple-100 text-purple-700 font-semibold{% endif %}">
+           Mis Programas
+        </a>
+    </li>
+    <li>
+        <a href="{{ url_for('user_dashboard.organizer_create_program') if 'user_dashboard.organizer_create_program' in get_flashed_messages(category_filter=['url_exists']) else '#' }}"
+           class="block py-2.5 px-4 text-gray-700 hover:bg-purple-100 hover:text-purple-700 rounded-md text-sm transition-colors duration-150 {% if request.endpoint == 'user_dashboard.organizer_create_program' %}bg-purple-100 text-purple-700 font-semibold{% endif %}">
+           Crear Programa
+        </a>
+    </li>
+    {# Add more organizer links as needed, e.g., Manage Volunteers #}
+    {#
+    <li>
+        <a href="{{ url_for('user_dashboard.organizer_manage_volunteers') if 'user_dashboard.organizer_manage_volunteers' in get_flashed_messages(category_filter=['url_exists']) else '#' }}"
+           class="block py-2.5 px-4 text-gray-700 hover:bg-purple-100 hover:text-purple-700 rounded-md text-sm transition-colors duration-150 {% if request.endpoint == 'user_dashboard.organizer_manage_volunteers' %}bg-purple-100 text-purple-700 font-semibold{% endif %}">
+           Gestionar Voluntarios
+        </a>
+    </li>
+    #}
+{% endblock %}
+
+{% block dashboard_main_content %}
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4 sm:mb-0">Panel de Organizador</h1>
+        <a href="{{ url_for('user_dashboard.organizer_create_program') if 'user_dashboard.organizer_create_program' in get_flashed_messages(category_filter=['url_exists']) else '#' }}"
+           class="inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150">
+            <svg class="-ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+            Crear Nuevo Programa
+        </a>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 class="text-xl font-semibold text-gray-700 mb-2">¡Bienvenido, {{ current_user.nombre }}!</h2>
+        <p class="text-gray-600">
+            Como Organizador, puedes gestionar tus programas, crear nuevos y supervisar las actividades y voluntarios asociados con tus iniciativas.
+        </p>
+    </div>
+
+    {# Display Organizer's Organizations #}
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Mis Organizaciones</h3>
+        {% if member_organizations %}
+            <ul class="list-disc pl-5 space-y-1">
+                {% for org in member_organizations %}
+                    <li class="text-base text-gray-900">{{ org.nombre_org }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-gray-600">No estás asociado a ninguna organización.</p>
+        {% endif %}
+    </div>
+
+    {# Display Created Programs #}
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Mis Programas Creados</h3>
+        {% if created_programs_con_prediccion %}
+            <ul class="divide-y divide-gray-200 -mx-6"> {# Negative margin to extend divider if parent has padding p-6 #}
+                {% for item in created_programs_con_prediccion %}
+                <li class="p-4 hover:bg-gray-50 sm:px-6">
+                    <div class="flex items-center justify-between">
+                        <div class="truncate">
+                            <p class="text-base font-medium text-purple-600 truncate">
+                                {{ item.actividad.nombre }}
+                                <span title="{{ item.texto_indicador }}" class="ml-2 text-xl">{{ item.indicador }}</span>
+                            </p>
+                            <p class="text-base text-gray-500">Organización: {{ item.actividad.organizacion.nombre_org if item.actividad.organizacion else 'N/A' }}</p>
+                            <p class="text-base text-gray-500">Fecha Actividad: {{ item.actividad.fecha_actividad.strftime('%d/%m/%Y') if item.actividad.fecha_actividad else 'N/A' }} | Estado: <span class="font-semibold">{{ item.actividad.estado.value | capitalize if item.actividad.estado else 'N/A' }}</span></p>
+                            <p class="text-base text-gray-500">Cupo: {{ item.actividad.cupo_maximo if item.actividad.cupo_maximo is not none else 'N/A' }} | Es Inclusiva: {{ 'Sí' if item.actividad.es_inclusiva else 'No' }}</p>
+                            <p class="text-xs text-gray-400 mt-1">Predicción: {{ item.texto_indicador }}</p> {# Displaying text also directly for clarity #}
+                        </div>
+                        <div class="ml-2 flex-shrink-0">
+                            <a href="{{ url_for('program.view_program_detail', program_id=item.actividad.id_actividad) }}" class="px-3 py-1 text-sm font-semibold text-purple-700 bg-purple-100 rounded-full hover:bg-purple-200 mb-2 block text-center">Ver</a>
+                            <a href="#" class="px-3 py-1 text-sm font-semibold text-purple-700 bg-purple-100 rounded-full hover:bg-purple-200 block text-center">Editar</a> {# Placeholder #}
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-gray-600">No has creado ningún programa todavía o no hay predicciones disponibles.</p> {# Modified else text slightly #}
+        {% endif %}
+    </div>
+
+    {# Model Prediction Details Section #}
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Detalles del Modelo de Predicción de Participación</h3>
+        {% set first_item_with_metrics = none %}
+        {% if actividades_con_prediccion %}
+            {% for item in actividades_con_prediccion %}
+                {% if item.metricas and item.tree_dot_file and not first_item_with_metrics %}
+                    {% set first_item_with_metrics = item %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        {% if first_item_with_metrics %}
+            <div class="space-y-2">
+                <div>
+                    <h4 class="text-md font-medium text-gray-600">Métricas del Modelo</h4>
+                    <p class="text-sm text-gray-500">Precisión (Accuracy) en el conjunto de prueba:
+                        <span class="font-semibold">
+                        {% if first_item_with_metrics.metricas.accuracy is number %}
+                            {{ first_item_with_metrics.metricas.accuracy | round(3) }}
+                        {% else %}
+                            {{ first_item_with_metrics.metricas.accuracy }} {# Display as is if not a number, e.g. "N/A" or error string #}
+                        {% endif %}
+                        </span>
+                    </p>
+                    <p class="text-xs text-gray-400 italic">Nota: Las métricas se basan en la última ejecución del modelo durante la carga de esta página, utilizando datos históricos disponibles hasta ese momento. El modelo se re-entrena con cada solicitud de predicción.</p>
+                </div>
+
+                {% if first_item_with_metrics.tree_dot_file %}
+                <div>
+                    <h4 class="text-md font-medium text-gray-600">Visualización del Árbol de Decisión (Primer Árbol del Bosque Aleatorio)</h4>
+                    <p class="text-sm text-gray-500">Se ha generado un archivo DOT para la visualización del árbol:
+                       <code class="text-xs bg-gray-100 p-1 rounded">{{ first_item_with_metrics.tree_dot_file }}</code>.
+                    </p>
+                    <p class="text-sm text-gray-500 mt-1">Para convertir este archivo .dot a una imagen (e.g., PNG) usando Graphviz, puedes ejecutar el siguiente comando en tu terminal (si tienes Graphviz instalado):
+                       <br><code class="text-xs bg-gray-100 p-1 rounded">dot -Tpng {{ first_item_with_metrics.tree_dot_file }} -o tree.png && xdg-open tree.png</code>
+                    </p>
+                    <p class="text-xs text-gray-400 italic mt-1">La visualización representa uno de los árboles del modelo RandomForest. El archivo <code>{{ first_item_with_metrics.tree_dot_file }}</code> se guarda en el directorio raíz de la aplicación en el servidor.</p>
+                </div>
+                {% else %}
+                    <p class="text-sm text-gray-500">No se generó archivo de visualización del árbol (Graphviz podría no estar disponible o no se generó el árbol para esta predicción).</p>
+                {% endif %}
+            </div>
+        {% else %}
+            <p class="text-sm text-gray-500">No hay detalles del modelo de predicción disponibles. Esto puede ocurrir si no hay actividades creadas, si las actividades existentes no tienen suficientes datos para el entrenamiento del modelo, o si hubo un error en la generación de la predicción.</p>
+        {% endif %}
+    </div>
+
+    {# Top Recommended Activities Section #}
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Actividades Populares Recomendadas a Usuarios</h3>
+
+        {# Add the button form here #}
+        <div class="my-4"> {# Margin for spacing #}
+            <form action="{{ url_for('user_dashboard.trigger_organizer_recommendations') }}" method="POST">
+                {# Optional: Add CSRF token if Flask-WTF or similar is used, though not explicitly requested for this form yet #}
+                {# {{ form.csrf_token }} #}
+                <button type="submit"
+                        class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150">
+                    <svg class="w-5 h-5 mr-2 -ml-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                    Generar/Actualizar Recomendaciones
+                </button>
+            </form>
+        </div>
+
+        {% if recommended_activities %}
+            <ul class="divide-y divide-gray-200 -mx-6"> {# Negative margin for divider consistency if parent has p-6 #}
+                {% for activity in recommended_activities %}
+                <li class="p-4 hover:bg-gray-50 sm:px-6">
+                    <div class="flex items-center justify-between">
+                        <div class="truncate">
+                            <p class="text-base font-medium text-purple-600 truncate">{{ activity.nombre }}</p>
+                            <p class="text-base text-gray-500">Organización: {{ activity.organizacion.nombre_org if activity.organizacion else 'N/A' }}</p>
+                            <p class="text-base text-gray-500">Fecha Actividad: {{ activity.fecha_actividad.strftime('%d/%m/%Y') if activity.fecha_actividad else 'N/A' }}</p>
+                            {# Optionally, display a score or ranking if available and desired #}
+                            {# <p class="text-sm text-gray-500">Ranking de Popularidad: {{ loop.index }} </p> #}
+                        </div>
+                        <div class="ml-2 flex-shrink-0">
+                            <a href="{{ url_for('program.view_program_detail', program_id=activity.id_actividad) }}" class="px-3 py-1 text-sm font-semibold text-purple-700 bg-purple-100 rounded-full hover:bg-purple-200 block text-center">
+                                Ver Detalle
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-gray-600">No hay recomendaciones de actividades disponibles en este momento.</p>
+        {% endif %}
+    </div>
+
+    {# Placeholder for "Volunteer Management" or "Recent Applications" #}
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Solicitudes de Voluntarios (Marcador de posición)</h3>
+        <p class="text-gray-600">
+            Aquí aparecerán las solicitudes recientes de voluntarios para tus programas.
+        </p>
+    </div>
+
+{% endblock %}

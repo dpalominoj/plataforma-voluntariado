@@ -1,0 +1,57 @@
+{% extends "dashboard.base.html" %}
+
+{% block title %}Gestionar Usuarios - Panel de Administrador - KONECTAi{% endblock %}
+
+{% block dashboard_main_content %}
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Gestionar Usuarios</h1>
+
+    <div class="bg-white shadow-md rounded-lg overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">DNI</th>
+                    <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                    <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Apellido</th>
+                    <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Perfil</th>
+                    <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                    <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Registrado</th>
+                    <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% if users %}
+                    {% for user_item in users %} {# Renamed to user_item to avoid conflict with global 'user' #}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user_item.id_usuario }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-base text-gray-500">{{ user_item.DNI }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-base text-gray-900">{{ user_item.nombre }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-base text-gray-500">{{ user_item.apellido if user_item.apellido else 'N/A' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-base text-gray-500">{{ user_item.email if user_item.email else 'N/A' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-base text-gray-500">{{ user_item.perfil | capitalize }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    {% if user_item.estado_usuario.value == 'activo' %} bg-green-100 text-green-800
+                                    {% elif user_item.estado_usuario.value == 'inactivo' %} bg-yellow-100 text-yellow-800
+                                    {% elif user_item.estado_usuario.value == 'suspendido' %} bg-red-100 text-red-800
+                                    {% else %} bg-gray-100 text-gray-800 {% endif %}">
+                                    {{ user_item.estado_usuario.value | capitalize if user_item.estado_usuario else 'N/A' }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user_item.fecha_registro.strftime('%Y-%m-%d') if user_item.fecha_registro else 'N/A' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="#" class="px-3 py-1 text-sm font-semibold text-purple-700 bg-purple-100 rounded-full hover:bg-purple-200">Editar</a> {# Placeholder #}
+                                {# Add other actions like change status here later #}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="9" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No hay usuarios para mostrar.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

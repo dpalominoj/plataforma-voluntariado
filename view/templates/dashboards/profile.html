@@ -1,0 +1,129 @@
+{% extends "dashboard.base.html" %}
+
+{% block title %}Mi Perfil - Panel - KONECTAi{% endblock %}
+
+{% block dashboard_main_content %}
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Mi Perfil</h1>
+
+    {# User Information Card #}
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-xl leading-6 font-semibold text-gray-900">
+                Información del Usuario
+            </h3>
+            <p class="mt-1 max-w-2xl text-base text-gray-500">
+                Tu información personal.
+            </p>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+            <dl class="sm:divide-y sm:divide-gray-200">
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-base font-medium text-gray-500">Nombre Completo</dt>
+                    <dd class="mt-1 text-base text-gray-900 sm:mt-0 sm:col-span-2">{{ user.nombre }}</dd>
+                </div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-base font-medium text-gray-500">Correo Electrónico</dt>
+                    <dd class="mt-1 text-base text-gray-900 sm:mt-0 sm:col-span-2">{{ user.email }}</dd>
+                </div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-base font-medium text-gray-500">Rol</dt>
+                    <dd class="mt-1 text-base text-gray-900 sm:mt-0 sm:col-span-2">{{ user.perfil | capitalize }}</dd>
+                </div>
+            </dl>
+        </div>
+        <div class="px-4 py-4 sm:px-6 border-t border-gray-200">
+            <p class="text-base text-gray-500 italic mb-3">(La funcionalidad para editar el perfil estará disponible aquí en el futuro.)</p>
+            <a href="#" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50" aria-disabled="true">
+                Editar Perfil (Próximamente)
+            </a>
+        </div>
+    </div>
+
+    {# Mis Discapacidades y Preferencias #}
+    <div class="mt-8 bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-xl leading-6 font-semibold text-gray-900">
+                Mis Discapacidades y Preferencias
+            </h3>
+            <p class="mt-1 max-w-2xl text-base text-gray-500">
+                Información sobre tus discapacidades y preferencias de apoyo registradas.
+            </p>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <div class="mb-6">
+                {% if user_disabilities_data and user_disabilities_data|length > 0 %}
+                    {% for item in user_disabilities_data %}
+                    <div class="p-3 mb-2 bg-gray-50 rounded-md shadow-sm"> {# Light background and subtle shadow for each item #}
+                        <span class="font-medium text-gray-700">Discapacidad:</span> <span class="text-gray-900">{{ item.nombre }}</span>
+                        <span class="ml-6 font-medium text-gray-700">Severidad:</span> <span class="text-gray-900">{{ item.gravedad }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-base text-gray-600 italic">No has registrado ninguna discapacidad.</p>
+                {% endif %}
+            </div>
+            <div>
+                {% if user_preferences and user_preferences|length > 0 %}
+                    <div class="p-3 bg-gray-50 rounded-md shadow-sm">
+                        <span class="font-medium text-gray-700">Preferencias:</span>
+                        <span class="text-gray-900">{{ user_preferences|map(attribute='nombre_corto')|join(', ') }}</span>
+                    </div>
+                {% else %}
+                    <p class="text-base text-gray-600 italic">No has registrado ninguna preferencia.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if user.perfil == 'voluntario' %}
+    <div class="mt-8 bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-xl leading-6 font-semibold text-gray-900">
+                Mis Inscripciones
+            </h3>
+            <p class="mt-1 max-w-2xl text-base text-gray-500">
+                Actividades en las que te has inscrito.
+            </p>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+            {% if user_enrollments %}
+                <ul class="divide-y divide-gray-200">
+                    {% for inscripcion, actividad in user_enrollments %}
+                    <li class="p-4 hover:bg-gray-50 sm:px-6">
+                        <div class="flex items-center justify-between">
+                            <div class="truncate">
+                                <p class="text-base font-medium text-purple-600 truncate">{{ actividad.nombre }}</p>
+                                <p class="text-base text-gray-500">Organizado por: {{ actividad.organizacion.nombre_org if actividad.organizacion else 'N/A' }}</p>
+                                <p class="text-base text-gray-500">Fecha de inscripción: {{ inscripcion.fecha_inscripcion.strftime('%d/%m/%Y %H:%M') }}</p>
+                            </div>
+                            <div class="ml-2 flex-shrink-0">
+                                <a href="{{ url_for('program.view_program_detail', program_id=actividad.id_actividad) }}" class="px-3 py-1 text-sm font-semibold text-purple-700 bg-purple-100 rounded-full hover:bg-purple-200">
+                                    Ver Actividad
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="px-4 py-5 sm:px-6">
+                    <p class="text-base text-gray-600">No te has inscrito en ninguna actividad todavía.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% elif user.perfil == 'organizador' %}
+    <div class="mt-8 bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-xl leading-6 font-semibold text-gray-900">
+                Mi Actividad como Organizador
+            </h3>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+            <p class="text-base text-gray-600 italic">
+                (Los detalles sobre los programas que gestionas aparecerán aquí.)
+            </p>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

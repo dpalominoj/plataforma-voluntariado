@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión - KONECTAi{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Inicia sesión en tu cuenta
+        </h2>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <form method="POST" action="{{ url_for('auth.login') }}" novalidate class="space-y-6">
+                {{ form.hidden_tag() }}
+
+                <div>
+                    {{ form.dni.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+                    {{ form.dni(class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-base" + (" border-red-500" if form.dni.errors else ""), placeholder="Tu DNI") }}
+                    {% if form.dni.errors %}
+                        <div class="mt-1">
+                            {% for error in form.dni.errors %}<span class="text-sm text-red-500">{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    {{ form.password.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+                    {{ form.password(class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-base" + (" border-red-500" if form.password.errors else ""), placeholder="Contraseña") }}
+                    {% if form.password.errors %}
+                        <div class="mt-1">
+                            {% for error in form.password.errors %}<span class="text-sm text-red-500">{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                {# Remember Me Checkbox - Example Styling (if you add it to your form)
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        {{ form.remember_me(class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded") }}
+                        {{ form.remember_me.label(class="ml-2 block text-sm text-gray-900") }}
+                    </div>
+                #}
+                    {# Forgot Password link - Example Styling (if you implement it)
+                    <div class="text-sm">
+                        <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">
+                            Forgot your password?
+                        </a>
+                    </div>
+                    #}
+                {#</div>#}
+
+                <div>
+                    {{ form.submit(class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500") }}
+                </div>
+            </form>
+
+            <div class="mt-6">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">
+                            O
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mt-6 text-center">
+                    <p class="text-base text-gray-600">
+                        ¿Necesitas una cuenta?
+                        <a href="{{ url_for('auth.register') }}" class="font-medium text-purple-600 hover:text-purple-500">
+                            Regístrate ahora
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

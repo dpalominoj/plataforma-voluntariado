@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% set nav_bg = "bg-hr-ayuda" %}
+{% set border_color = "border-cl-ayuda" %}
+{% block title %}Ayuda - Chat con KONECTAi{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 py-8 sm:py-12">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                Asistente Virtual
+            </h2>
+            <p class="mt-3 text-xl text-gray-600">
+                Haz una pregunta a nuestro asistente para obtener ayuda.
+            </p>
+        </div>
+
+        <div class="bg-white p-4 sm:p-6 rounded-lg shadow-xl border border-gray-200">
+            <div id="chatMessages" class="h-80 overflow-y-auto mb-4 p-3 bg-gray-100 rounded-md border border-gray-300">
+                <div class="flex justify-start mb-2">
+                    <div class="bg-indigo-500 text-white p-3 rounded-lg max-w-xs shadow">
+                        <p class="text-sm">Hola! Soy tu asistente virtual. &iquest;C&oacute;mo puedo ayudarte hoy?</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input Area -->
+            <div class="flex items-center border-t border-gray-200 pt-4">
+                <input type="text" id="chatInput" class="flex-grow p-3 border border-gray-300 rounded-l-md focus:ring-indigo-500 focus:border-indigo-500" placeholder="Escribe tu mensaje aqui..." disabled>
+                <button id="sendChatButton" class="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-r-md font-semibold" disabled>
+                    Enviar
+                </button>
+            </div>
+             <div id="chatConnectionError" class="text-red-500 text-sm mt-2 text-center"></div> 
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{# {{ super() }} #}
+<script src="https://cdn.socket.io/4.5.2/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/help_chat.js') }}" defer></script>
+{% endblock %}
