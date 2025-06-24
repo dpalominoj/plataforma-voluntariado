@@ -31,18 +31,30 @@
                             <td class="px-6 py-4 whitespace-nowrap text-base text-gray-500">{{ user_item.email if user_item.email else 'N/A' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-base text-gray-500">{{ user_item.perfil | capitalize }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                    {% if user_item.estado_usuario.value == 'activo' %} bg-green-100 text-green-800
-                                    {% elif user_item.estado_usuario.value == 'inactivo' %} bg-yellow-100 text-yellow-800
-                                    {% elif user_item.estado_usuario.value == 'suspendido' %} bg-red-100 text-red-800
-                                    {% else %} bg-gray-100 text-gray-800 {% endif %}">
-                                    {{ user_item.estado_usuario.value | capitalize if user_item.estado_usuario else 'N/A' }}
-                                </span>
+                                <form action="{{ url_for('user_dashboard.admin_change_user_status', user_id=user_item.id_usuario) }}" method="POST" class="inline-flex">
+                                    <select name="estado_usuario" onchange="this.form.submit()"
+                                            class="px-2 py-1 text-xs leading-5 font-semibold rounded-full border-gray-300 focus:border-purple-300 focus:ring focus:ring-purple-200 focus:ring-opacity-50
+                                                {% if user_item.estado_usuario.value == 'activo' %} bg-green-100 text-green-800
+                                                {% elif user_item.estado_usuario.value == 'inactivo' %} bg-yellow-100 text-yellow-800
+                                                {% elif user_item.estado_usuario.value == 'suspendido' %} bg-red-100 text-red-800
+                                                {% elif user_item.estado_usuario.value == 'bloqueado' %} bg-red-200 text-red-900
+                                                {% else %} bg-gray-100 text-gray-800 {% endif %}">
+                                        {% for estado_val in estados_posibles %}
+                                            <option value="{{ estado_val }}" {% if user_item.estado_usuario.value == estado_val %}selected{% endif %}>
+                                                {{ estado_val | capitalize }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user_item.fecha_registro.strftime('%Y-%m-%d') if user_item.fecha_registro else 'N/A' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <a href="#" class="px-3 py-1 text-sm font-semibold text-purple-700 bg-purple-100 rounded-full hover:bg-purple-200">Editar</a> {# Placeholder #}
-                                {# Add other actions like change status here later #}
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                {# <a href="#" class="px-3 py-1 text-sm font-semibold text-purple-700 bg-purple-100 rounded-full hover:bg-purple-200">Editar</a> #}
+                                <form action="{{ url_for('user_dashboard.admin_delete_user', user_id=user_item.id_usuario) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer.');" class="inline-flex">
+                                    <button type="submit" class="px-3 py-1 text-sm font-semibold text-red-700 bg-red-100 rounded-full hover:bg-red-200">
+                                        Eliminar
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}
