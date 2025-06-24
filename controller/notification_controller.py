@@ -1,9 +1,11 @@
 # controller/notification_controller.py
-from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
+from flask import Blueprint, render_template, redirect, url_for, flash, request, abort, jsonify
 from flask_login import login_required, current_user
 from database.db import db
-from model.models import Notificaciones # Asegurarse que SQLAlchemy y func están disponibles si se usan aquí
+from model.models import Notificaciones, Usuarios, Inscripciones, InteraccionesChatbot # Asegurarse que SQLAlchemy y func están disponibles si se usan aquí
 from sqlalchemy import desc, func # Importar func para counts, desc para ordenar
+from sqlalchemy.sql.expression import extract
+from collections import Counter
 
 notifications_bp = Blueprint('notifications', __name__,
                              template_folder='../view/templates/notifications',
@@ -86,3 +88,68 @@ def mark_all_as_read():
         return redirect(url_for('notifications.list_all'))
 
     return redirect(url_for('notifications.list_all'))
+
+@notifications_bp.route('/api/sugerir_horario', methods=['GET'])
+@login_required
+def api_sugerir_horario():
+    if current_user.perfil != 'organizador':
+        # Aunque un voluntario podría llamar a esta API, la sugerencia es para el organizador.
+        # Podríamos devolver un error o simplemente datos vacíos/genéricos si no es organizador.
+        # Por ahora, restrinjamos al organizador ya que la funcionalidad está pensada para ellos.
+        return jsonify({"error": "Acceso no autorizado"}), 403
+
+    hourly_activity = Counter()
+
+    # 1. Registros de Usuarios
+    user_registration_hours = db.session.query(extract('hour', Usuarios.fecha_registro)).all()
+    for hour_tuple in user_registration_hours:
+        if hour_tuple[0] is not None:
+            hourly_activity[hour_tuple[0]] += 1
+
+    # 2. Inscripciones a Actividades
+    inscription_hours = db.session.query(extract('hour', Inscripciones.fecha_inscripcion)).all()
+    for hour_tuple in inscription_hours:
+        if hour_tuple[0] is not None:
+            hourly_activity[hour_tuple[0]] += 1
+
+    # 3. Notificaciones Leídas (usando fecha_envio de notificaciones leídas como proxy)
+    #    Esto asume que la lectura ocurre relativamente cerca del envío.
+    #    Si hubiera una `fecha_leida`, sería más preciso.
+    read_notification_hours = db.session.query(extract('hour', Notificaciones.fecha_envio))\
+                                      .filter(Notificaciones.leida == True).all()
+    for hour_tuple in read_notification_hours:
+        if hour_tuple[0] is not None:
+            hourly_activity[hour_tuple[0]] += 1
+
+    # 4. Interacciones con Chatbot
+    chatbot_interaction_hours = db.session.query(extract('hour', InteraccionesChatbot.fecha)).all()
+    for hour_tuple in chatbot_interaction_hours:
+        if hour_tuple[0] is not None:
+            hourly_activity[hour_tuple[0]] += 1
+
+    if not hourly_activity:
+        return jsonify({"sugerencias": [], "mensaje": "No hay suficientes datos para generar sugerencias."})
+
+    # Obtener las 3 horas más activas
+    # Counter.most_common(n) devuelve una lista de tuplas (elemento, conteo)
+    top_hours = hourly_activity.most_common(3)
+
+    suggestions = []
+    for hour, count in top_hours:
+        # Formatear como rango de una hora, ej: "08:00 - 09:00"
+        suggestions.append(f"{str(hour).zfill(2)}:00 - {str(hour+1 if hour < 23 else 0).zfill(2)}:00 (Actividad: {count})")
+
+    # Considerar agrupar en bloques de 2 horas si es más útil
+    # Ejemplo de lógica para agrupar en bloques de 2 horas (más complejo):
+    # bi_hourly_activity = Counter()
+    # for hour, count in hourly_activity.items():
+    #    block_start_hour = (hour // 2) * 2 # 0, 2, 4...
+    #    bi_hourly_activity[block_start_hour] += count
+    # top_bi_hourly = bi_hourly_activity.most_common(3)
+    # suggestions_bi_hourly = []
+    # for block_start, count in top_bi_hourly:
+    #    suggestions_bi_hourly.append(f"{str(block_start).zfill(2)}:00 - {str(block_start+2).zfill(2)}:00 (Actividad: {count})")
+    # return jsonify({"sugerencias": suggestions_bi_hourly})
+
+
+    return jsonify({"sugerencias": suggestions})
