@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, current_app
+from flask import Blueprint, render_template, flash, redirect, url_for, current_app, request
 from flask_login import login_required, current_user
-from model.models import UsuarioDiscapacidad, Discapacidades, Inscripciones, Actividades, Usuarios, EstadoActividad
+from model.models import UsuarioDiscapacidad, Discapacidades, Inscripciones, Actividades, Usuarios, EstadoActividad, EstadoUsuario
 from database.db import db
 from services.participation_service import predecir_participacion
 from services.compatibility_service import get_compatibility_scores
@@ -197,7 +197,60 @@ def admin_manage_users():
         return redirect(url_for('user_dashboard.dashboard'))
 
     all_users = Usuarios.query.order_by(Usuarios.id_usuario).all()
-    return render_template('admin_manage_users.html', users=all_users, title="Gestionar Usuarios")
+    estados_posibles = [estado.value for estado in EstadoUsuario]
+    return render_template('admin_manage_users.html', users=all_users, title="Gestionar Usuarios", estados_posibles=estados_posibles)
+
+@dashboard_bp.route('/admin/delete_user/<int:user_id>', methods=['POST'])
+@login_required
+def admin_delete_user(user_id):
+    if current_user.perfil != 'administrador':
+        flash("Acceso no autorizado.", "danger")
+        return redirect(url_for('user_dashboard.dashboard'))
+
+    user_to_delete = Usuarios.query.get_or_404(user_id)
+    if user_to_delete.id_usuario == current_user.id_usuario:
+        flash("No puedes eliminar tu propia cuenta.", "danger")
+        return redirect(url_for('user_dashboard.admin_manage_users'))
+
+    try:
+        # Considerar la eliminación en cascada o el manejo de dependencias aquí
+        # Por ejemplo, si hay inscripciones, notificaciones, etc. asociadas.
+        # Por ahora, se eliminará directamente.
+        db.session.delete(user_to_delete)
+        db.session.commit()
+        flash(f"Usuario {user_to_delete.nombre} eliminado correctamente.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error al eliminar el usuario: {str(e)}", "danger")
+        current_app.logger.error(f"Error deleting user {user_id}: {e}")
+    return redirect(url_for('user_dashboard.admin_manage_users'))
+
+@dashboard_bp.route('/admin/change_user_status/<int:user_id>', methods=['POST'])
+@login_required
+def admin_change_user_status(user_id):
+    if current_user.perfil != 'administrador':
+        flash("Acceso no autorizado.", "danger")
+        return redirect(url_for('user_dashboard.dashboard'))
+
+    user_to_update = Usuarios.query.get_or_404(user_id)
+    new_status_str = request.form.get('estado_usuario')
+
+    if not new_status_str:
+        flash("No se proporcionó un nuevo estado.", "warning")
+        return redirect(url_for('user_dashboard.admin_manage_users'))
+
+    try:
+        new_status_enum = EstadoUsuario(new_status_str) # Convertir string a Enum
+        user_to_update.estado_usuario = new_status_enum
+        db.session.commit()
+        flash(f"Estado del usuario {user_to_update.nombre} actualizado a {new_status_str}.", "success")
+    except ValueError:
+        flash(f"Estado '{new_status_str}' no válido.", "danger")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error al cambiar el estado del usuario: {str(e)}", "danger")
+        current_app.logger.error(f"Error changing status for user {user_id}: {e}")
+    return redirect(url_for('user_dashboard.admin_manage_users'))
 
 @dashboard_bp.route('/organizer/trigger-recommendations', methods=['POST'])
 @login_required

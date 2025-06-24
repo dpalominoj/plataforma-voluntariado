@@ -32,9 +32,8 @@
             </dl>
         </div>
         <div class="px-4 py-4 sm:px-6 border-t border-gray-200">
-            <p class="text-base text-gray-500 italic mb-3">(La funcionalidad para editar el perfil estará disponible aquí en el futuro.)</p>
-            <a href="#" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50" aria-disabled="true">
-                Editar Perfil (Próximamente)
+            <a href="{{ url_for('profile.edit_profile') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                Editar Perfil
             </a>
         </div>
     </div>

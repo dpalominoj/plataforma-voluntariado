@@ -80,7 +80,7 @@
                         </div>
                         <div class="ml-2 flex-shrink-0">
                             <a href="{{ url_for('program.view_program_detail', program_id=item.actividad.id_actividad) }}" class="px-3 py-1 text-sm font-semibold text-purple-700 bg-purple-100 rounded-full hover:bg-purple-200 mb-2 block text-center">Ver</a>
-                            <a href="#" class="px-3 py-1 text-sm font-semibold text-purple-700 bg-purple-100 rounded-full hover:bg-purple-200 block text-center">Editar</a> {# Placeholder #}
+                            <a href="{{ url_for('program.edit_program_state', program_id=item.actividad.id_actividad) }}" class="px-3 py-1 text-sm font-semibold text-blue-700 bg-blue-100 rounded-full hover:bg-blue-200 block text-center">Editar Estado</a>
                         </div>
                     </div>
                 </li>
@@ -139,57 +139,6 @@
         {% endif %}
     </div>
 
-    {# Top Recommended Activities Section #}
-    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h3 class="text-xl font-semibold text-gray-700 mb-4">Actividades Populares Recomendadas a Usuarios</h3>
-
-        {# Add the button form here #}
-        <div class="my-4"> {# Margin for spacing #}
-            <form action="{{ url_for('user_dashboard.trigger_organizer_recommendations') }}" method="POST">
-                {# Optional: Add CSRF token if Flask-WTF or similar is used, though not explicitly requested for this form yet #}
-                {# {{ form.csrf_token }} #}
-                <button type="submit"
-                        class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150">
-                    <svg class="w-5 h-5 mr-2 -ml-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                    </svg>
-                    Generar/Actualizar Recomendaciones
-                </button>
-            </form>
-        </div>
-
-        {% if recommended_activities %}
-            <ul class="divide-y divide-gray-200 -mx-6"> {# Negative margin for divider consistency if parent has p-6 #}
-                {% for activity in recommended_activities %}
-                <li class="p-4 hover:bg-gray-50 sm:px-6">
-                    <div class="flex items-center justify-between">
-                        <div class="truncate">
-                            <p class="text-base font-medium text-purple-600 truncate">{{ activity.nombre }}</p>
-                            <p class="text-base text-gray-500">Organización: {{ activity.organizacion.nombre_org if activity.organizacion else 'N/A' }}</p>
-                            <p class="text-base text-gray-500">Fecha Actividad: {{ activity.fecha_actividad.strftime('%d/%m/%Y') if activity.fecha_actividad else 'N/A' }}</p>
-                            {# Optionally, display a score or ranking if available and desired #}
-                            {# <p class="text-sm text-gray-500">Ranking de Popularidad: {{ loop.index }} </p> #}
-                        </div>
-                        <div class="ml-2 flex-shrink-0">
-                            <a href="{{ url_for('program.view_program_detail', program_id=activity.id_actividad) }}" class="px-3 py-1 text-sm font-semibold text-purple-700 bg-purple-100 rounded-full hover:bg-purple-200 block text-center">
-                                Ver Detalle
-                            </a>
-                        </div>
-                    </div>
-                </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p class="text-gray-600">No hay recomendaciones de actividades disponibles en este momento.</p>
-        {% endif %}
-    </div>
-
-    {# Placeholder for "Volunteer Management" or "Recent Applications" #}
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <h3 class="text-xl font-semibold text-gray-700 mb-4">Solicitudes de Voluntarios (Marcador de posición)</h3>
-        <p class="text-gray-600">
-            Aquí aparecerán las solicitudes recientes de voluntarios para tus programas.
-        </p>
-    </div>
+    {# Las secciones "Actividades Populares Recomendadas a Usuarios" y "Solicitudes de Voluntarios (Marcador de posición)" han sido eliminadas. #}
 
 {% endblock %}
