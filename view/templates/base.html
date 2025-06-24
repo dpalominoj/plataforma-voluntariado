@@ -59,15 +59,47 @@
           </a>
           
           <!-- Icono de Notificacion Movil-->
-          <div class="md:hidden flex items-center">
-            <button class="p-2 rounded-full text-white hover:text-gray-300 focus:outline-none focus:bg-gray-700" aria-label="Notifications_mobile">
+          <div class="md:hidden flex items-center" x-data="{ openMobileNotifications: false }">
+            <button @click="openMobileNotifications = !openMobileNotifications" class="relative p-2 rounded-full text-white hover:text-gray-300 focus:outline-none focus:bg-gray-700" aria-label="Notifications_mobile">
               <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
               </svg>
+              {% if current_user.is_authenticated and unread_notifications_count > 0 %}
+                <span class="absolute top-1 right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">{{ unread_notifications_count }}</span>
+              {% endif %}
             </button>
+            <!-- Dropdown de Notificaciones Movil -->
+            <div x-show="openMobileNotifications" @click.away="openMobileNotifications = false" x-cloak
+                 class="absolute top-16 right-4 mt-2 w-80 bg-white rounded-md shadow-lg py-1 z-50 ring-1 ring-black ring-opacity-5 max-h-96 overflow-y-auto text-gray-700 font-normal">
+              <div class="px-4 py-2 text-sm font-semibold border-b">Notificaciones</div>
+              {% if current_user.is_authenticated and recent_unread_notifications %}
+                {% for notification in recent_unread_notifications %}
+                <a href="{{ (url_for('notifications.redirect_and_mark_read', notification_id=notification.id_notificacion)) if notification.url_destino else url_for('notifications.mark_as_read', notification_id=notification.id_notificacion, next=request.path) }}"
+                   class="block px-4 py-3 text-sm hover:bg-gray-100 border-b last:border-b-0 notification-item"
+                   data-notification-id="{{ notification.id_notificacion }}">
+                  <p class="font-medium">{{ notification.mensaje | truncate(100, True) }}</p>
+                  <p class="text-xs text-gray-500 mt-1">{{ notification.fecha_envio.strftime('%d %b %Y %H:%M') if notification.fecha_envio else 'Fecha no disponible' }}</p>
+                </a>
+                {% endfor %}
+                {% if unread_notifications_count > recent_unread_notifications|length %}
+                <a href="{{ url_for('notifications.list_all') }}" class="block px-4 py-2 text-sm text-center text-purple-600 hover:bg-gray-100 font-semibold">
+                  Ver todas ({{ unread_notifications_count }})
+                </a>
+                {% endif %}
+              {% elif current_user.is_authenticated and unread_notifications_count == 0 %}
+                <p class="px-4 py-3 text-sm text-gray-500">No tienes notificaciones nuevas.</p>
+              {% elif not current_user.is_authenticated %}
+                <p class="px-4 py-3 text-sm text-gray-500">Inicia sesión para ver tus notificaciones.</p>
+              {% endif %}
+              {% if current_user.is_authenticated %}
+               <a href="{{ url_for('notifications.list_all') }}" class="block px-4 py-2 text-sm text-center text-purple-600 hover:bg-gray-100 border-t font-semibold">
+                  Ir al Centro de Notificaciones
+               </a>
+              {% endif %}
+            </div>
             
             <!-- Icono de Menu Movil -->
-            <button @click="openMobileMenu = !openMobileMenu" type="button" class="p-2 rounded-full text-white hover:text-gray-300 focus:outline-none focus:bg-gray-700 transition duration-200 ease-in-out"  aria-label="Menu_mobile">
+            <button @click="openMobileMenu = !openMobileMenu" type="button" class="p-2 rounded-full text-white hover:text-gray-300 focus:outline-none focus:bg-gray-700 transition duration-200 ease-in-out ml-2"  aria-label="Menu_mobile">
               <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16" />
@@ -78,10 +110,10 @@
         </div>
 
         <!-- Mobile Menu / Desktop Links -->
-        <div :class="{'block': openMobileMenu, 'hidden': !openMobileMenu}" class="mobile-menu-container md:flex md:items-center w-full md:w-auto md:bg-transparent shadow-lg md:shadow-none" x-cloak>
+        <div :class="{'block': openMobileMenu, 'hidden': !openMobileMenu}" class="mobile-menu-container bg-white md:bg-transparent md:flex md:items-center w-full md:w-auto shadow-lg md:shadow-none" x-cloak>
           <ul class="md:flex flex-col md:flex-row md:space-x-4 mt-4 md:mt-0 text-gray-800 font-bold">
-            <li><a href="{{ url_for('main.home') }}" class="block py-2 px-3 hover:bg-purple-600 hover:text-white rounded">Inicio</a></li>
-            <li><a href="{{ url_for('main.programs') }}" class="block py-2 px-3 hover:bg-purple-600 hover:text-white rounded">Programas</a></li>
+            <li><a href="{{ url_for('main.home') }}" class="block py-2 px-3 hover:bg-purple-600 hover:text-white rounded md:text-white md:hover:bg-transparent md:hover:text-purple-200">Inicio</a></li>
+            <li><a href="{{ url_for('main.programs') }}" class="block py-2 px-3 hover:bg-purple-600 hover:text-white rounded md:text-white md:hover:bg-transparent md:hover:text-purple-200">Programas</a></li>
             <li><a href="{{ url_for('main.help_page') }}" class="block py-2 px-3 hover:bg-purple-600 hover:text-white rounded">Ayuda</a></li>
           </ul>
 
