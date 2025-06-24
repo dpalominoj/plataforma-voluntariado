@@ -60,6 +60,18 @@
         {% endif %}
     </div>
 
+    <!-- Suggested Notification Times Section -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Horarios Sugeridos para Notificaciones</h3>
+        <div id="notification-suggestions-container">
+            <p class="text-gray-600" id="suggestions-loading-message">Cargando sugerencias...</p>
+            <ul id="notification-suggestions-list" class="list-disc pl-5 space-y-1 text-gray-800">
+                <!-- Suggestions will be loaded here by JavaScript -->
+            </ul>
+            <p id="suggestions-error-message" class="text-red-500" style="display: none;"></p>
+        </div>
+    </div>
+
     {# Display Created Programs #}
     <div class="bg-white p-6 rounded-lg shadow-md mb-8">
         <h3 class="text-xl font-semibold text-gray-700 mb-4">Mis Programas Creados</h3>
@@ -141,4 +153,49 @@
 
     {# Las secciones "Actividades Populares Recomendadas a Usuarios" y "Solicitudes de Voluntarios (Marcador de posición)" han sido eliminadas. #}
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const suggestionsList = document.getElementById('notification-suggestions-list');
+    const loadingMessage = document.getElementById('suggestions-loading-message');
+    const errorMessageElement = document.getElementById('suggestions-error-message');
+
+    fetch("{{ url_for('notifications.api_sugerir_horario') }}")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            loadingMessage.style.display = 'none';
+            if (data.error) {
+                errorMessageElement.textContent = `Error: ${data.error}`;
+                errorMessageElement.style.display = 'block';
+            } else if (data.sugerencias && data.sugerencias.length > 0) {
+                data.sugerencias.forEach(suggestion => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = suggestion;
+                    suggestionsList.appendChild(listItem);
+                });
+            } else {
+                suggestionsList.innerHTML = '<li class="text-gray-500">No hay sugerencias disponibles en este momento.</li>';
+                 if (data.mensaje) {
+                    const messageItem = document.createElement('li');
+                    messageItem.textContent = data.mensaje;
+                    messageItem.classList.add('text-gray-500', 'italic');
+                    suggestionsList.appendChild(messageItem);
+                }
+            }
+        })
+        .catch(error => {
+            loadingMessage.style.display = 'none';
+            console.error('Error fetching notification suggestions:', error);
+            errorMessageElement.textContent = 'No se pudieron cargar las sugerencias. Inténtalo más tarde.';
+            errorMessageElement.style.display = 'block';
+        });
+});
+</script>
 {% endblock %}

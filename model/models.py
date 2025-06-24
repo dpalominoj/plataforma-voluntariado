@@ -81,7 +81,7 @@ class Usuarios(db.Model, UserMixin):
     preferencias = relationship("Preferencias", secondary=usuarios_preferencia_table, back_populates="usuarios")
     discapacidades_pivot = relationship("UsuarioDiscapacidad", back_populates="usuario", cascade="all, delete-orphan")
     inscripciones = relationship("Inscripciones", back_populates="usuario")
-    notificaciones = relationship("Notificaciones", back_populates="usuario")
+    notificaciones = relationship("Notificaciones", back_populates="usuario", cascade="all, delete-orphan")
     feedback = relationship("Feedback", back_populates="usuario")
     recomendaciones = relationship("Recomendaciones", back_populates="usuario")
     interacciones_chatbot = relationship("InteraccionesChatbot", back_populates="usuario")
