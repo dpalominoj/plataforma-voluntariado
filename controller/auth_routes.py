@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from database.db import db
-from model.models import Usuarios, Discapacidades, Preferencias, UsuarioDiscapacidad
+from model.models import Usuarios, Discapacidades, Preferencias, UsuarioDiscapacidad, Notificaciones, TipoNotificacion # Añadido Notificaciones y TipoNotificacion
 from controller.forms import RegistrationForm, LoginForm
 
 auth_bp = Blueprint('auth', __name__,
@@ -44,6 +44,34 @@ def register():
 
         db.session.add(user)
         db.session.commit()
+
+        # Crear notificación para completar perfil
+        try:
+            # Asumiendo que la ruta para editar perfil será algo como 'profile.edit_profile'
+            # Esto podría necesitar ajuste cuando se implemente la vista de editar perfil.
+            # Si 'user_dashboard.profile' es la vista de perfil, editar_perfil podría estar ahí.
+            # Por ahora, usaremos 'user_dashboard.profile' como placeholder si url_for('profile.edit_profile') no está definido aún.
+            # La tarea especifica "editar_perfil"
+            url_editar_perfil = url_for('profile.edit_profile') # Actualizado a la nueva ruta
+
+            mensaje_notificacion = "¡Bienvenido/a! Completa tu perfil para mejorar tu experiencia y acceder a todas las funcionalidades."
+
+            nueva_notificacion = Notificaciones(
+                id_usuario=user.id_usuario,
+                mensaje=mensaje_notificacion,
+                tipo=TipoNotificacion.COMPLETAR_PERFIL,
+                prioridad='alta', # Según el enum del modelo es 'alta', 'media', 'baja'
+                url_destino=url_editar_perfil
+            )
+            db.session.add(nueva_notificacion)
+            db.session.commit()
+        except Exception as e:
+            # Loggear el error o manejarlo discretamente para no interrumpir el flujo de registro
+            # Por ejemplo, podrías usar flash('Error al crear notificación, contacte soporte.', 'warning')
+            # o simplemente loggear a consola/archivo.
+            print(f"Error al crear notificación de completar perfil: {e}")
+            # No es crítico fallar aquí, así que no relanzamos la excepción ni hacemos rollback del usuario.
+
         flash('¡Felicidades, ahora eres un usuario registrado! Por favor Inicia Sesión.', 'success')
         return redirect(url_for('auth.login'))
     return render_template('register.html', title='Registro', form=form)

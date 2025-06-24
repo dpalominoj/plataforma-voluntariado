@@ -1,0 +1,154 @@
+{% extends "base.html" %} {# O dashboard.base.html si se prefiere dentro del layout del panel #}
+{% from "view/templates/_form_macros.html" import render_field %} {# Si se necesitan macros para formularios (ej. botón marcar todas como leídas) #}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto mt-8 px-4">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <h1 class="text-3xl font-bold text-gray-800">{{ title }}</h1>
+        {% if notifications_page.items and unread_count > 0 %}
+        <form method="POST" action="{{ url_for('notifications.mark_all_as_read') }}" class="inline-block">
+            {# CSRF token debería ser manejado por Flask-WTF si el form es un FlaskForm #}
+            {# Si no, y si CSRFProtect está globalmente, no se necesita input manual aquí para POST simples #}
+            {# Para mayor seguridad, se podría instanciar un pequeño FlaskForm solo para este botón #}
+            <button type="submit" class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded shadow transition duration-150 ease-in-out">
+                Marcar todas como leídas ({{ unread_count }})
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    {# Mostrar mensajes flash (usando Tailwind) #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          {% set alert_classes = {
+            'info': 'bg-blue-100 border-blue-500 text-blue-700',
+            'success': 'bg-green-100 border-green-500 text-green-700',
+            'warning': 'bg-yellow-100 border-yellow-500 text-yellow-700',
+            'danger': 'bg-red-100 border-red-500 text-red-700',
+            'error': 'bg-red-100 border-red-500 text-red-700',
+            'message': 'bg-gray-100 border-gray-500 text-gray-700'
+          } %}
+          {% set chosen_class = alert_classes.get(category, alert_classes['message']) %}
+          <div class="{{ chosen_class }} border-l-4 p-4 mb-4 relative" role="alert" x-data="{ show: true }" x-show="show" x-transition x-cloak>
+            <div class="flex">
+              <div class="py-1">
+                {# Iconos podrían añadirse aquí como en base.html si se desea #}
+              </div>
+              <div class="flex-grow">
+                <p class="font-bold capitalize">{{ 'Error' if category == 'danger' else category|capitalize }}</p>
+                <p class="text-sm">{{ message }}</p>
+              </div>
+              <button @click="show = false" type="button" class="ml-auto -mx-1.5 -my-1.5 p-1.5 inline-flex h-8 w-8 items-center justify-center rounded-lg focus:ring-2 {{ chosen_class.replace('bg-', 'focus:ring-').replace('border-', 'hover:bg-').replace('100', '200').replace('text-', 'hover:text-') }}">
+                <span class="sr-only">Descartar</span>
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+              </button>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% if notifications_page.items %}
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <ul class="divide-y divide-gray-200">
+                {% for notification in notifications_page.items %}
+                <li class="p-4 hover:bg-gray-50 transition duration-150 ease-in-out {% if not notification.leida %}bg-yellow-50 border-l-4 border-yellow-400{% else %}bg-white{% endif %}">
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0 pt-1">
+                            {% if not notification.leida %}
+                                <span class="h-2.5 w-2.5 rounded-full bg-yellow-500 block" title="No leída"></span>
+                            {% else %}
+                                <svg class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                                </svg>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm">
+                                <p class="font-medium text-gray-900">{{ notification.mensaje }}</p>
+                            </div>
+                            <div class="mt-1 text-xs text-gray-500 flex flex-wrap gap-x-2">
+                                <span>{{ notification.fecha_envio.strftime('%d %b %Y, %I:%M %p') if notification.fecha_envio else 'Fecha desconocida' }}</span>
+                                {% if notification.tipo %}
+                                <span class="hidden sm:inline">&bull;</span>
+                                <span class="capitalize">{{ notification.tipo.name.replace('_', ' ') if notification.tipo.name else notification.tipo.value.replace('_', ' ') }}</span>
+                                {% endif %}
+                                {% if notification.prioridad %}
+                                <span class="hidden sm:inline">&bull;</span>
+                                <span class="capitalize">{{ notification.prioridad.value if notification.prioridad.value else notification.prioridad.name }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0 self-center">
+                            {% if notification.url_destino %}
+                                <a href="{{ url_for('notifications.redirect_and_mark_read', notification_id=notification.id_notificacion) }}" class="text-sm font-medium text-purple-600 hover:text-purple-500 transition duration-150 ease-in-out">
+                                    Ver detalle &rarr;
+                                </a>
+                            {% elif not notification.leida %}
+                                <a href="{{ url_for('notifications.mark_as_read', notification_id=notification.id_notificacion, next=request.url) }}" class="text-sm font-medium text-blue-600 hover:text-blue-500 transition duration-150 ease-in-out">
+                                    Marcar como leída
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {# Paginación con Tailwind #}
+        {% if notifications_page.pages > 1 %}
+        <nav class="mt-6 flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
+            <div class="-mt-px flex w-0 flex-1">
+              {% if notifications_page.has_prev %}
+                <a href="{{ url_for('notifications.list_all', page=notifications_page.prev_num) }}" class="inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                  <svg class="mr-3 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" /></svg>
+                  Anterior
+                </a>
+              {% endif %}
+            </div>
+            <div class="hidden md:-mt-px md:flex">
+              {% for page_num in notifications_page.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if page_num %}
+                  {% if notifications_page.page == page_num %}
+                  <span aria-current="page" class="inline-flex items-center border-t-2 border-purple-500 px-4 pt-4 text-sm font-medium text-purple-600">{{ page_num }}</span>
+                  {% else %}
+                  <a href="{{ url_for('notifications.list_all', page=page_num) }}" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">{{ page_num }}</a>
+                  {% endif %}
+                {% elif loop.index != 2 and loop.index != notifications_page.pages -1 %} {# Show ... only once between groups of pages #}
+                  {% if loop.index == notifications_page.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2)|list|length -1 and notifications_page.pages > 5 %}
+                  {% elif loop.index > 2 and loop.index < notifications_page.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2)|list|length -1 %}
+                     {% if loop.index == 3 or loop.index == notifications_page.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2)|list|length -2 %}
+                        <span class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500">...</span>
+                     {% endif %}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            </div>
+            <div class="-mt-px flex w-0 flex-1 justify-end">
+              {% if notifications_page.has_next %}
+                <a href="{{ url_for('notifications.list_all', page=notifications_page.next_num) }}" class="inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                  Siguiente
+                  <svg class="ml-3 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" /></svg>
+                </a>
+              {% endif %}
+            </div>
+          </nav>
+        {% endif %}
+
+    {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <h3 class="mt-2 text-lg font-medium text-gray-900">No hay notificaciones</h3>
+            <p class="mt-1 text-sm text-gray-500">
+                Cuando recibas notificaciones, aparecerán aquí.
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

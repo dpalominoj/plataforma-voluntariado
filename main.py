@@ -1,15 +1,17 @@
 import os
 from flask import Flask, send_from_directory
 from flask_socketio import SocketIO, emit
-from sqlalchemy import inspect
+from sqlalchemy import inspect, func # Añadir func
 from database.db import db, init_app
 from controller.routes import main_bp
 from controller.auth_routes import auth_bp
 from controller.dashboard_routes import dashboard_bp
 from controller.program_controller import program_bp
-from flask_login import LoginManager
+from controller.user_controller import profile_bp
+from controller.notification_controller import notifications_bp # <--- Añadir import
+from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
-from model.models import Usuarios
+from model.models import Usuarios, Notificaciones # Añadir Notificaciones
 from database.datos_iniciales import seed_data
 
 
@@ -58,10 +60,22 @@ login_manager.login_message_category = 'info'
 def load_user(user_id):
     return db.session.get(Usuarios, int(user_id))
 
+@app.context_processor
+def inject_notifications():
+    if current_user.is_authenticated:
+        # Contar directamente en la DB es más eficiente si solo se necesita el número
+        unread_count = db.session.query(func.count(Notificaciones.id_notificacion)).filter_by(id_usuario=current_user.id_usuario, leida=False).scalar()
+        # Obtener las N más recientes para el dropdown
+        recent_unread_notifications = Notificaciones.query.filter_by(id_usuario=current_user.id_usuario, leida=False).order_by(Notificaciones.fecha_envio.desc()).limit(5).all()
+        return dict(unread_notifications_count=unread_count, recent_unread_notifications=recent_unread_notifications)
+    return dict(unread_notifications_count=0, recent_unread_notifications=[])
+
 app.register_blueprint(main_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(program_bp)
+app.register_blueprint(profile_bp)
+app.register_blueprint(notifications_bp) # <--- Registrar el blueprint de notificaciones
 
 @app.route('/services/<path:filename>')
 def serve_service_file(filename):

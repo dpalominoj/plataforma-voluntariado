@@ -29,6 +29,11 @@ class TipoRecomendacion(enum.Enum):
     GRUPAL = "G"
     BUENAS_PRACTICAS = "BP"
 
+class TipoNotificacion(enum.Enum):
+    COMPLETAR_PERFIL = "completar_perfil"
+    CAMBIO_ESTADO_ACTIVIDAD = "cambio_estado_actividad"
+    INFO_GENERAL = "info_general"
+
 # Asociación de tablas
 usuario_organizacion_table = Table('usuario_organizacion', db.Model.metadata,
     Column('usuario_id', Integer, ForeignKey('usuarios.id_usuario'), primary_key=True),
@@ -199,7 +204,11 @@ class Notificaciones(db.Model):
     mensaje = db.Column(db.Text, nullable=False)
     fecha_envio = db.Column(db.DateTime, default=datetime.utcnow)
     leida = db.Column(db.Boolean, default=False)
-    prioridad = db.Column(db.Enum('alta', 'media', 'baja', name='prioridad_enum'))
+    prioridad = db.Column(db.Enum('alta', 'media', 'baja', name='prioridad_enum')) # Mantener o ajustar según sea necesario
+
+    # Nuevos campos
+    tipo = db.Column(db.Enum(TipoNotificacion, name='tipo_notificacion_enum', values_callable=lambda x: [e.value for e in x]), nullable=False, default=TipoNotificacion.INFO_GENERAL)
+    url_destino = db.Column(db.String(255), nullable=True)
 
     usuario = relationship("Usuarios", back_populates="notificaciones")
 

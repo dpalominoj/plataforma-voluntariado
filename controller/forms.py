@@ -26,3 +26,22 @@ class LoginForm(FlaskForm):
                         validators=[DataRequired(), Length(min=8, max=8)])
     password = PasswordField('Contraseña', validators=[DataRequired()])
     submit = SubmitField('Iniciar Sesión')
+
+class EditProfileForm(FlaskForm):
+    nombre = StringField('Nombre', validators=[DataRequired(), Length(min=2, max=100)])
+    apellido = StringField('Apellido', validators=[Optional(), Length(max=100)])
+    celular = StringField('Celular', validators=[Optional(), Length(max=9)]) # Ajustar validación si es necesario
+    email = StringField('Email', validators=[Optional(), Length(max=150)]) # Añadir validador de Email si se reinstala email_validator
+    direccion = StringField('Dirección', validators=[Optional(), Length(max=255)])
+    fecha_nacimiento = StringField('Fecha de Nacimiento (YYYY-MM-DD)', validators=[Optional()]) # Considerar DateField
+    genero = SelectField('Género', choices=[('', 'Prefiero no decirlo'), ('masculino', 'Masculino'), ('femenino', 'Femenino')], validators=[Optional()])
+    submit = SubmitField('Guardar Cambios')
+
+# Necesitamos EstadoActividad para las choices del formulario de cambio de estado
+from model.models import EstadoActividad
+
+class EditProgramStateForm(FlaskForm):
+    estado = SelectField('Nuevo Estado del Programa',
+                         choices=[(estado.value, estado.name.replace('_', ' ').title()) for estado in EstadoActividad],
+                         validators=[DataRequired()])
+    submit = SubmitField('Actualizar Estado')

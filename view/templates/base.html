@@ -87,13 +87,42 @@
 
           <ul class="md:flex md:items-center flex-col md:flex-row md:space-x-4 mt-4 md:mt-0 md:ml-auto font-bold">
             {% if current_user.is_authenticated %}
-            <li class="mr-2 hidden md:block"> {# Or ml-2 depending on placement relative to user menu #}
-              <button class="p-2 rounded-full text-white hover:text-purple-200 focus:outline-none focus:bg-purple-600" aria-label="Notifications">
+            <!-- Notifications Dropdown -->
+            <li class="relative hidden md:block" x-data="{ openNotifications: false }" @click.away="openNotifications = false">
+              <button @click="openNotifications = !openNotifications" class="p-2 rounded-full text-white hover:text-purple-200 focus:outline-none focus:bg-purple-600 relative" aria-label="Notifications">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
                 </svg>
+                {% if unread_notifications_count > 0 %}
+                  <span class="absolute top-1 right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">{{ unread_notifications_count }}</span>
+                {% endif %}
               </button>
+              <div x-show="openNotifications" x-cloak
+                   class="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-md shadow-lg py-1 z-50 ring-1 ring-black ring-opacity-5 max-h-96 overflow-y-auto text-gray-700 font-normal">
+                <div class="px-4 py-2 text-sm font-semibold border-b">Notificaciones</div>
+                {% if recent_unread_notifications %}
+                  {% for notification in recent_unread_notifications %}
+                  <a href="{{ (url_for('notifications.redirect_and_mark_read', notification_id=notification.id_notificacion)) if notification.url_destino else url_for('notifications.mark_as_read', notification_id=notification.id_notificacion, next=request.path) }}"
+                     class="block px-4 py-3 text-sm hover:bg-gray-100 border-b last:border-b-0 notification-item"
+                     data-notification-id="{{ notification.id_notificacion }}">
+                    <p class="font-medium">{{ notification.mensaje | truncate(100, True) }}</p>
+                    <p class="text-xs text-gray-500 mt-1">{{ notification.fecha_envio.strftime('%d %b %Y %H:%M') if notification.fecha_envio else 'Fecha no disponible' }}</p>
+                  </a>
+                  {% endfor %}
+                  {% if unread_notifications_count > recent_unread_notifications|length %}
+                  <a href="{{ url_for('notifications.list_all') }}" class="block px-4 py-2 text-sm text-center text-purple-600 hover:bg-gray-100 font-semibold">
+                    Ver todas ({{ unread_notifications_count }})
+                  </a>
+                  {% endif %}
+                {% elif unread_notifications_count == 0 %}
+                  <p class="px-4 py-3 text-sm text-gray-500">No tienes notificaciones nuevas.</p>
+                {% endif %}
+                 <a href="{{ url_for('notifications.list_all') }}" class="block px-4 py-2 text-sm text-center text-purple-600 hover:bg-gray-100 border-t font-semibold">
+                    Ir al Centro de Notificaciones
+                 </a>
+              </div>
             </li>
+            <!-- User Menu -->
             <li class="relative" x-data="{ openUserMenu: false }" @click.away="openUserMenu = false">
               <button @click="openUserMenu = !openUserMenu" class="flex items-center w-full text-left py-2 px-3 text-white hover:text-purple-200 rounded focus:outline-none focus:bg-purple-600">
                 <svg class="h-6 w-6 mr-2 inline-block" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
