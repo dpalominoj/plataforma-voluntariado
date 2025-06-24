@@ -1,44 +1,129 @@
 {% extends "dashboard.base.html" %}
+{% from "_form_helpers.html" import render_field_tailwind %} {# Asumiendo que tienes o crearás este macro #}
 
 {% block title %}Mi Perfil - Panel - KONECTAi{% endblock %}
 
 {% block dashboard_main_content %}
-    <h1 class="text-3xl font-bold text-gray-800 mb-8">Mi Perfil</h1>
+<div x-data="{ editingProfile: false }">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Mi Perfil</h1>
 
-    {# User Information Card #}
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-            <h3 class="text-xl leading-6 font-semibold text-gray-900">
-                Información del Usuario
-            </h3>
-            <p class="mt-1 max-w-2xl text-base text-gray-500">
-                Tu información personal.
-            </p>
+    {# User Information Card - Visible cuando no se está editando #}
+    <div x-show="!editingProfile" x-cloak class="bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center">
+            <div>
+                <h3 class="text-xl leading-6 font-semibold text-gray-900">
+                    Información del Usuario
+                </h3>
+                <p class="mt-1 max-w-2xl text-base text-gray-500">
+                    Tu información personal.
+                </p>
+            </div>
+            <button @click="editingProfile = true"
+                    class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                Editar Perfil
+            </button>
         </div>
         <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
             <dl class="sm:divide-y sm:divide-gray-200">
-                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-base font-medium text-gray-500">Nombre Completo</dt>
-                    <dd class="mt-1 text-base text-gray-900 sm:mt-0 sm:col-span-2">{{ user.nombre }}</dd>
+                <div class="py-3 sm:py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">DNI</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ current_user.DNI }}</dd>
                 </div>
-                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-base font-medium text-gray-500">Correo Electrónico</dt>
-                    <dd class="mt-1 text-base text-gray-900 sm:mt-0 sm:col-span-2">{{ user.email }}</dd>
+                <div class="py-3 sm:py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Nombre</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ current_user.nombre }}</dd>
                 </div>
-                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-base font-medium text-gray-500">Rol</dt>
-                    <dd class="mt-1 text-base text-gray-900 sm:mt-0 sm:col-span-2">{{ user.perfil | capitalize }}</dd>
+                <div class="py-3 sm:py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Apellido</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ current_user.apellido if current_user.apellido else '-' }}</dd>
+                </div>
+                <div class="py-3 sm:py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Correo Electrónico</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ current_user.email if current_user.email else '-' }}</dd>
+                </div>
+                <div class="py-3 sm:py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Celular</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ current_user.celular if current_user.celular else '-' }}</dd>
+                </div>
+                <div class="py-3 sm:py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Dirección</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ current_user.direccion if current_user.direccion else '-' }}</dd>
+                </div>
+                <div class="py-3 sm:py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Fecha de Nacimiento</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ current_user.fecha_nacimiento.strftime('%d/%m/%Y') if current_user.fecha_nacimiento else '-' }}</dd>
+                </div>
+                <div class="py-3 sm:py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Género</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ current_user.genero | capitalize if current_user.genero else '-' }}</dd>
+                </div>
+                <div class="py-3 sm:py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Rol</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ current_user.perfil | capitalize }}</dd>
                 </div>
             </dl>
         </div>
-        <div class="px-4 py-4 sm:px-6 border-t border-gray-200">
-            <a href="{{ url_for('profile.edit_profile') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
-                Editar Perfil
-            </a>
+    </div>
+
+    {# Edit Profile Form - Visible cuando editingProfile es true #}
+    <div x-show="editingProfile" x-cloak class="mt-6 bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-xl leading-6 font-semibold text-gray-900">
+                Editar Información del Usuario
+            </h3>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+            {# Mostrar DNI (no editable) #}
+            <div class="mb-4 p-3 bg-indigo-50 border border-indigo-200 rounded-md">
+                <strong class="text-sm font-medium text-indigo-700">DNI:</strong>
+                <span class="text-sm text-indigo-900">{{ current_user.DNI }} (No editable)</span>
+            </div>
+
+            {# Formulario de edición #}
+            <form method="POST" action="{{ url_for('profile.edit_profile') }}" novalidate>
+                {{ form.hidden_tag() }} {# CSRF token #}
+
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-3">
+                        {{ render_field_tailwind(form.nombre, placeholder="Ej: Juan Carlos") }}
+                    </div>
+                    <div class="sm:col-span-3">
+                        {{ render_field_tailwind(form.apellido, placeholder="Ej: Pérez Gómez") }}
+                    </div>
+
+                    <div class="sm:col-span-3">
+                        {{ render_field_tailwind(form.email, type="email", placeholder="Ej: usuario@example.com") }}
+                    </div>
+                    <div class="sm:col-span-3">
+                        {{ render_field_tailwind(form.celular, type="tel", placeholder="Ej: 987654321") }}
+                    </div>
+
+                    <div class="sm:col-span-6">
+                        {{ render_field_tailwind(form.direccion, placeholder="Ej: Av. Siempre Viva 123") }}
+                    </div>
+
+                    <div class="sm:col-span-3">
+                        {{ render_field_tailwind(form.fecha_nacimiento, type="date", help_text="Formato: YYYY-MM-DD") }}
+                    </div>
+                    <div class="sm:col-span-3">
+                        {{ render_field_tailwind(form.genero) }}
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-5 border-t border-gray-200">
+                    <div class="flex justify-end space-x-3">
+                        <button @click="editingProfile = false" type="button"
+                                class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Cancelar
+                        </button>
+                        {{ form.submit(class="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500") }}
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
-    {# Mis Discapacidades y Preferencias #}
+    {# Mis Discapacidades y Preferencias - Siempre visible #}
     <div class="mt-8 bg-white shadow-md rounded-lg overflow-hidden">
         <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
             <h3 class="text-xl leading-6 font-semibold text-gray-900">

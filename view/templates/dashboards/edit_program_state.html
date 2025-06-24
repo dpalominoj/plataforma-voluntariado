@@ -1,5 +1,5 @@
 {% extends "dashboard.base.html" %}
-{% from "_form_macros.html" import render_field %} {# Corrected path for _form_macros.html #}
+{% from "_form_helpers.html" import render_field_tailwind %} {# Using render_field_tailwind #}
 
 {% block title %}{{ title }} - {{ program.nombre }}{% endblock %}
 
@@ -42,7 +42,9 @@
                 </div>
 
                 <div class="mb-6">
-                    {{ render_field(form.estado, class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm", label_visible=True, label_class="block text-sm font-medium text-gray-700") }}
+                    {# Usando render_field_tailwind. Las clases específicas para el campo se manejan mayormente dentro de la macro. #}
+                    {# label_visible=True es el default, así que no es estrictamente necesario pasarlo. #}
+                    {{ render_field_tailwind(form.estado) }}
                 </div>
 
                 <div class="flex items-center justify-start space-x-3">
