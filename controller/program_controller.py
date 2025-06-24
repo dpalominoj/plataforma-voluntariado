@@ -115,8 +115,13 @@ def get_programs_compatibility(tipo_filter=None, organizacion_filter=None, estad
 
     return programs, compatibility_scores
 
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, abort
 from sqlalchemy.orm import joinedload # Importar joinedload
+
+# Importar el nuevo formulario y el servicio de notificación
+from controller.forms import EditProgramStateForm
+from services.notification_service import crear_notificacion_cambio_estado
+# model.models.EstadoActividad ya está importado arriba
 
 # Definición del Blueprint
 program_bp = Blueprint('program', __name__,
@@ -188,3 +193,62 @@ def enroll_program(program_id):
 
 
     return redirect(url_for('program.view_program_detail', program_id=program_id))
+
+
+@program_bp.route('/<int:program_id>/edit_state', methods=['GET', 'POST'])
+@login_required
+def edit_program_state(program_id):
+    program = Actividades.query.get_or_404(program_id)
+
+    # Verificar perfil de organizador
+    if current_user.perfil != 'organizador':
+        flash("Acceso no autorizado.", "danger")
+        return redirect(url_for('main.home')) # O a donde corresponda
+
+    # Verificar que el organizador gestiona este programa
+    # Un organizador puede pertenecer a múltiples organizaciones.
+    # El programa pertenece a una organización.
+    # Si el id_organizacion del programa está en las organizaciones del current_user, tiene permiso.
+    organizer_org_ids = [org.id_organizacion for org in current_user.organizaciones]
+    if program.id_organizacion not in organizer_org_ids:
+        flash("No tienes permiso para editar el estado de este programa.", "danger")
+        return redirect(url_for('program.view_program_detail', program_id=program_id))
+
+    form = EditProgramStateForm(obj=program) # obj=program precargará el estado actual si el nombre del campo coincide
+
+    if form.validate_on_submit():
+        nuevo_estado_str = form.estado.data
+        nuevo_estado_enum = EstadoActividad(nuevo_estado_str) # Convertir string a Enum
+
+        antiguo_estado_enum = program.estado # Guardar estado anterior para notificación
+
+        if antiguo_estado_enum == nuevo_estado_enum:
+            flash(f"El programa ya se encuentra en estado '{nuevo_estado_enum.name.replace('_', ' ').title()}'. No se realizaron cambios.", "info")
+        else:
+            program.estado = nuevo_estado_enum
+            try:
+                db.session.commit()
+                flash(f"El estado del programa '{program.nombre}' ha sido actualizado a '{nuevo_estado_enum.name.replace('_', ' ').title()}'.", "success")
+
+                # Enviar notificaciones si el cambio de estado es relevante
+                # La función crear_notificacion_cambio_estado decide si notificar o no
+                if current_app: # Asegurarse de que current_app está disponible (debería estarlo en una ruta)
+                    with current_app.app_context(): # Asegurar contexto para url_for en el servicio
+                         crear_notificacion_cambio_estado(program, nuevo_estado_enum, antiguo_estado_enum)
+                else: # Fallback si no hay current_app (menos probable en este contexto)
+                    print("Advertencia: current_app no disponible, no se pudo llamar a crear_notificacion_cambio_estado con contexto.")
+
+
+            except Exception as e:
+                db.session.rollback()
+                flash(f"Error al actualizar el estado del programa: {str(e)}", "danger")
+                current_app.logger.error(f"Error actualizando estado de programa {program_id} por {current_user.id_usuario}: {e}")
+
+        return redirect(url_for('program.view_program_detail', program_id=program_id))
+
+    # Para GET, pre-rellenar el formulario con el estado actual
+    form.estado.data = program.estado.value if program.estado else None
+
+    # Usar una plantilla específica o una sección en program_detail o en el dashboard del organizador
+    # Por ahora, crearé una plantilla dedicada: 'edit_program_state.html'
+    return render_template('dashboards/edit_program_state.html', title="Editar Estado del Programa", form=form, program=program)

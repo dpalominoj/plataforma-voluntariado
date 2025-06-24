@@ -1,0 +1,63 @@
+{% extends "dashboard.base.html" %}
+{% from "view/templates/_form_macros.html" import render_field %}
+
+{% block title %}{{ title }} - {{ program.nombre }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="container mt-4">
+    <h2 class="mb-3">{{ title }}</h2>
+    <h4 class="mb-4 text-muted">Programa: <a href="{{ url_for('program.view_program_detail', program_id=program.id_actividad) }}">{{ program.nombre }}</a></h4>
+
+    {# Mostrar mensajes flash #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            Cambiar Estado del Programa
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('program.edit_program_state', program_id=program.id_actividad) }}" novalidate>
+                {{ form.hidden_tag() }} {# CSRF token #}
+
+                <div class="mb-3">
+                    <p class="card-text"><strong>Estado Actual:</strong>
+                        {% if program.estado %}
+                            <span class="badge
+                                {% if program.estado.value == 'abierto' %}bg-success
+                                {% elif program.estado.value == 'cerrado' %}bg-warning text-dark
+                                {% elif program.estado.value == 'cancelada' %}bg-danger
+                                {% elif program.estado.value == 'finalizada' %}bg-secondary
+                                {% else %}bg-info
+                                {% endif %}">
+                                {{ program.estado.name.replace('_', ' ').title() }}
+                            </span>
+                        {% else %}
+                            <span class="badge bg-light text-dark">No definido</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                {{ render_field(form.estado, class="form-select", label_visible=True) }}
+
+                <div class="mt-4">
+                    {{ form.submit(class="btn btn-primary me-2") }}
+                    <a href="{{ url_for('program.view_program_detail', program_id=program.id_actividad) }}" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{{ url_for('user_dashboard.dashboard') }}" class="btn btn-sm btn-info">&laquo; Volver al Dashboard</a>
+    </div>
+</div>
+{% endblock %}

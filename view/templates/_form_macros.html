@@ -1,0 +1,16 @@
+{# view/templates/_form_macros.html #}
+{% macro render_field(field, label_visible=true) %}
+  <div class="form-group mb-3">
+    {% if label_visible %}
+      {{ field.label(class="form-label") }}
+    {% endif %}
+    {{ field(**kwargs)|safe }} {# kwargs pasados desde la llamada, como class="form-control" #}
+    {% if field.errors %}
+      <ul class="errors list-unstyled text-danger mt-1">
+      {% for error in field.errors %}
+        <li><small>{{ error }}</small></li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+{% endmacro %}
