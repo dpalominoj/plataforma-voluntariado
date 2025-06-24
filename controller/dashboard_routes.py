@@ -182,8 +182,26 @@ def profile():
                                 .order_by(Inscripciones.fecha_inscripcion.desc()) \
                                 .all()
 
+    # Importar el formulario de edición de perfil
+    from controller.forms import EditProfileForm
+    form = EditProfileForm(obj=current_user)
+
+    # Formatear fecha_nacimiento para el campo del formulario si existe y no hay errores en él
+    # Esto asegura que si la página se recarga (ej. por un error de validación manejado en profile.edit_profile y redirigido aquí),
+    # el campo de fecha mantenga el valor correcto o el último valor ingresado si es válido.
+    # Sin embargo, la validación y el manejo de datos POST ahora están centralizados en profile.edit_profile.
+    # Aquí, principalmente poblamos el formulario para visualización inicial.
+    if current_user.fecha_nacimiento and not form.fecha_nacimiento.errors:
+        form.fecha_nacimiento.data = current_user.fecha_nacimiento # WTForms maneja la conversión a string
+
+    # Si se redirige aquí después de un error de validación en profile.edit_profile,
+    # los errores del formulario podrían estar en flash o necesitaríamos una forma de pasarlos.
+    # Por simplicidad, los mensajes flash manejarán los errores generales.
+    # El formulario se mostrará con los datos actuales del usuario.
+
     return render_template('profile.html',
-                           user=current_user,
+                           user=current_user, # Aunque form(obj=current_user) ya lo usa, es bueno tenerlo explícito para la vista.
+                           form=form, # Pasar el formulario a la plantilla
                            user_disabilities_data=user_disabilities_data,
                            user_preferences=user_preferences,
                            user_enrollments=user_enrollments,

@@ -1,5 +1,5 @@
-{# view/templates/_form_macros.html #}
-{% macro render_field(field, label_visible=true) %}
+{# view/templates/_form_helpers.html #}
+{% macro render_field(field, label_visible=true) %} {# Mantenemos la macro original por si se usa en otros lugares #}
   <div class="form-group mb-3">
     {% if label_visible %}
       {{ field.label(class="form-label") }}
@@ -9,6 +9,51 @@
       <ul class="errors list-unstyled text-danger mt-1">
       {% for error in field.errors %}
         <li><small>{{ error }}</small></li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro render_field_tailwind(field, type=None, placeholder=None, help_text=None, label_visible=true, container_class='mb-4', sr_only_label=False) %}
+  <div class="{{ container_class }}">
+    {% if label_visible and not sr_only_label %}
+      {{ field.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+    {% elif label_visible and sr_only_label %}
+      {{ field.label(class="sr-only") }}
+    {% endif %}
+
+    {% set field_kwargs = kwargs %}
+    {% if placeholder %}{% set _ = field_kwargs.update({'placeholder': placeholder}) %}{% endif %}
+    {% if type %}{% set _ = field_kwargs.update({'type': type}) %}{% endif %}
+
+    {% set base_classes = "block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm " %}
+    {% set input_classes = base_classes + "py-2 px-3 " %}
+    {% set select_classes = base_classes + "pl-3 pr-10 py-2 text-base " %}
+
+    {% if field.type == 'SelectField' %}
+      {{ field(class=select_classes + field_kwargs.pop('class', ''), **field_kwargs) }}
+    {% elif field.type == 'DateField' or type == 'date' %}
+       {{ field(class=input_classes + field_kwargs.pop('class', ''), **field_kwargs) }}
+    {% elif field.type == 'StringField' and type == 'tel' %}
+       {{ field(type="tel", class=input_classes + field_kwargs.pop('class', ''), **field_kwargs) }}
+    {% elif field.type == 'StringField' and type == 'email' %}
+       {{ field(type="email", class=input_classes + field_kwargs.pop('class', ''), **field_kwargs) }}
+    {% elif field.type == 'StringField' %}
+       {{ field(type=type if type else "text", class=input_classes + field_kwargs.pop('class', ''), **field_kwargs) }}
+    {% else %}
+      {# Fallback para otros tipos de campos, o si el type no se maneja explícitamente arriba #}
+      {{ field(class=input_classes + field_kwargs.pop('class', ''), **field_kwargs) }}
+    {% endif %}
+
+    {% if help_text %}
+      <p class="mt-1 text-xs text-gray-500">{{ help_text }}</p>
+    {% endif %}
+
+    {% if field.errors %}
+      <ul class="mt-1 list-none p-0">
+      {% for error in field.errors %}
+        <li class="text-red-500 text-xs">{{ error }}</li>
       {% endfor %}
       </ul>
     {% endif %}
