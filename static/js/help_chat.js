@@ -4,46 +4,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendChatButton = document.getElementById('sendChatButton');
     const chatConnectionError = document.getElementById('chatConnectionError');
 
-    let socket;
+    // Generar un sessionId único para esta sesión de chat del cliente
+    // Podría ser más robusto, pero para este caso es suficiente.
+    const sessionId = `chat_session_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
 
-    function connectSocket() {
-        // Asegúrate de que la URL coincida con tu configuración de SocketIO en el servidor
-        // Si Flask está sirviendo en el mismo host y puerto, '/' es usualmente suficiente.
-        // Si usas un namespace, ajústalo aquí, ej: io('/chat')
-        socket = io(window.location.origin);
-
-        socket.on('connect', () => {
-            console.log('Connected to chat server.');
-            chatInput.disabled = false;
-            sendChatButton.disabled = false;
-            chatConnectionError.textContent = '';
-            appendMessage('Conectado al asistente. ¡Puedes empezar a chatear!', 'system');
-        });
-
-        socket.on('disconnect', () => {
-            console.log('Disconnected from chat server.');
-            chatInput.disabled = true;
-            sendChatButton.disabled = true;
-            chatConnectionError.textContent = 'Desconectado del servidor de chat. Intentando reconectar...';
-            // Podrías intentar reconectar aquí si es necesario, o simplemente informar al usuario.
-        });
-
-        socket.on('connect_error', (error) => {
-            console.error('Connection Error:', error);
-            chatInput.disabled = true;
-            sendChatButton.disabled = true;
-            chatConnectionError.textContent = 'Error al conectar con el servidor de chat. Verifica la consola para más detalles.';
-            appendMessage(`Error de conexión: ${error.message}`, 'error');
-        });
-
-        socket.on('chat_response', (data) => {
-            console.log('Received response:', data);
-            if (data.error) {
-                appendMessage(`Error del bot: ${data.error}`, 'error');
-            } else {
-                appendMessage(data.response, 'bot');
-            }
-        });
+    function initializeChat() {
+        chatInput.disabled = false;
+        sendChatButton.disabled = false;
+        chatConnectionError.textContent = '';
+        appendMessage('Conectado al asistente. ¡Puedes empezar a chatear!', 'system');
+        // Quitar el mensaje inicial estático de help.html ya que el JS lo manejará
+        const initialBotMessage = chatMessages.querySelector('.flex.justify-start .bg-indigo-500');
+        if (initialBotMessage) {
+            initialBotMessage.parentElement.remove();
+        }
     }
 
     function appendMessage(message, sender) {
@@ -75,14 +49,56 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to last message
     }
 
-    function sendMessage() {
-        const message = chatInput.value.trim();
-        if (message && socket && socket.connected) {
-            appendMessage(message, 'user');
-            socket.emit('chat_message', { query: message });
-            chatInput.value = '';
-        } else if (!socket || !socket.connected) {
-            appendMessage('No estás conectado al servidor de chat.', 'error');
+    async function sendMessage() {
+        const userMessage = chatInput.value.trim();
+        if (!userMessage) {
+            return;
+        }
+
+        appendMessage(userMessage, 'user');
+        chatInput.value = '';
+        sendChatButton.disabled = true; // Disable button while waiting for response
+
+        try {
+            const response = await fetch('/api/chatbot/conversation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userMessage: userMessage,
+                    sessionId: sessionId, // Enviar el sessionId
+                    messageType: 'text' // Opcional, pero puede ser útil
+                }),
+            });
+
+            sendChatButton.disabled = false; // Re-enable button
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: `Error del servidor: ${response.status}` }));
+                console.error('Error from server:', errorData);
+                appendMessage(errorData.error || 'Error al obtener respuesta del servidor.', 'error');
+                chatConnectionError.textContent = errorData.error || 'Error del servidor.';
+                return;
+            }
+
+            const data = await response.json();
+            console.log('Received response:', data);
+
+            if (data.error) {
+                appendMessage(`Error del bot: ${data.error}`, 'error');
+            } else if (data.response) {
+                appendMessage(data.response, 'bot');
+            } else {
+                appendMessage('No se recibió una respuesta válida del bot.', 'error');
+            }
+            chatConnectionError.textContent = ''; // Clear any previous connection errors
+
+        } catch (error) {
+            sendChatButton.disabled = false; // Re-enable button on network error
+            console.error('Error sending message:', error);
+            appendMessage('Error de red al intentar contactar al asistente.', 'error');
+            chatConnectionError.textContent = 'Error de red. Verifica tu conexión e intenta de nuevo.';
         }
     }
 
@@ -90,15 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
     chatInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             sendMessage();
+            event.preventDefault(); // Prevenir el comportamiento por defecto del Enter en un formulario
         }
     });
 
-    // Inicializar la conexión
-    // Quitar el mensaje inicial estático de help.html ya que el JS lo manejará
-    const initialBotMessage = chatMessages.querySelector('.flex.justify-start .bg-indigo-500');
-    if (initialBotMessage) {
-        initialBotMessage.parentElement.remove();
-    }
-
-    connectSocket();
+    // Inicializar el chat
+    initializeChat();
 });

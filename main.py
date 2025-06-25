@@ -1,6 +1,6 @@
 import os
 from flask import Flask, send_from_directory
-from flask_socketio import SocketIO, emit
+# from flask_socketio import SocketIO, emit # No longer needed for chat
 import openai # Importar OpenAI
 from sqlalchemy import inspect, func # Añadir func
 from database.db import db, init_app
@@ -25,7 +25,7 @@ default_sqlite_uri = f"sqlite:///{os.path.join(app.instance_path, 'konectai.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', default_sqlite_uri)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-socketio = SocketIO(app)
+# socketio = SocketIO(app) # No longer needed for chat
 
 try:
     os.makedirs(app.instance_path)
@@ -88,57 +88,11 @@ def seed_db_command():
     with app.app_context():
         seed_data()
 
-# Socket.IO Event Handlers
-@socketio.on('connect')
-def handle_connect():
-    app.logger.info('Client connected to chat')
-    # emit('chat_response', {'response': 'Bienvenido al chat de KonectaAI.', 'requires_auth': False}) # Optional welcome message
-
-@socketio.on('disconnect')
-def handle_disconnect():
-    app.logger.info('Client disconnected from chat')
-
-@socketio.on('chat_message')
-def handle_chat_message(data):
-    user_message = data.get('query', '').strip()
-    app.logger.info(f"Received chat message: '{user_message}'")
-
-    api_key = os.environ.get('OPENAI_API_KEY')
-
-    if not api_key:
-        app.logger.error("OPENAI_API_KEY environment variable not found.")
-        emit('chat_response', {'error': 'Error de configuración del servidor: La clave API de OpenAI no está configurada.'})
-        return
-
-    try:
-        client = openai.OpenAI(api_key=api_key)
-        completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",  # O el modelo que prefieras y tengas acceso
-            messages=[
-                {"role": "system", "content": "Eres un asistente virtual útil y amigable para una plataforma de voluntariado llamada KONECTAi."},
-                {"role": "user", "content": user_message}
-            ]
-        )
-        bot_response = completion.choices[0].message.content
-        app.logger.info(f"Sending bot response from OpenAI: '{bot_response}'")
-        emit('chat_response', {'response': bot_response})
-
-    except openai.APIConnectionError as e:
-        app.logger.error(f"OpenAI API Connection Error: {e}")
-        emit('chat_response', {'error': f"Error de conexión con OpenAI: {e}"})
-    except openai.RateLimitError as e:
-        app.logger.error(f"OpenAI API Rate Limit Error: {e}")
-        emit('chat_response', {'error': f"Se ha excedido el límite de solicitudes a OpenAI: {e}"})
-    except openai.APIStatusError as e:
-        app.logger.error(f"OpenAI API Status Error: {e}")
-        emit('chat_response', {'error': f"Error en el estado de la API de OpenAI: {e}"})
-    except Exception as e:
-        app.logger.error(f"An unexpected error occurred while processing chat message: {e}")
-        emit('chat_response', {'error': f'Ocurrió un error inesperado: {e}'})
-
+# Socket.IO Event Handlers are removed as they are no longer used for the chat.
+# The chat functionality is now handled by the /api/chatbot/conversation endpoint.
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     # TODO: DEBUG debe ser False en un entorno de producción
-    # app.run(host='0.0.0.0', port=port, debug=True) # Original Flask dev server
-    socketio.run(app, host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=True) # Use standard Flask dev server
+    # socketio.run(app, host='0.0.0.0', port=port, debug=True) # SocketIO server no longer needed for chat
