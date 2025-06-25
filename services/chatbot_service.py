@@ -85,7 +85,7 @@ def get_chatbot_response(user_message: str, session_id: str) -> str:
         # Llama a la API de Hugging Face
         response = requests.post(
             HF_API_URL,
-            headers={"Authorization": f"Bearer {HF_TOKEN}"},
+            headers={"Authorization": f"Bearer {hf_token}"},
             json={
                 "inputs": prompt,
                 "parameters": {"temperature": 0.2, "max_new_tokens": 150}
