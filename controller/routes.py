@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, jsonify
 from model.models import Organizaciones, Discapacidades, Actividades, EstadoActividad, Preferencias
 from database.db import db
 from controller.program_controller import get_programs_compatibility
-from services.chatbot_service import get_chatbot_response as get_openai_chatbot_response
+from services.chatbot_service import get_chatbot_response
 
 main_bp = Blueprint('main', __name__, template_folder='../view/templates')
 
@@ -60,7 +60,6 @@ def chatbot_conversation():
 
     user_message = data.get('userMessage')
     session_id = data.get('sessionId')
-    # message_type = data.get('messageType') # 'text' or 'voice' - useful for analytics or specific handling
 
     if not user_message:
         return jsonify({"error": "Missing 'userMessage' in request."}), 400
@@ -69,7 +68,7 @@ def chatbot_conversation():
 
     try:
         # Utiliza el alias importado para llamar al servicio de chatbot
-        bot_response_text = get_openai_chatbot_response(user_message, session_id)
+        bot_response_text = get_chatbot_response(user_message, session_id)
         return jsonify({"response": bot_response_text})
     except Exception as e:
         # Log the exception for server-side review
