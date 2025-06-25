@@ -1,40 +1,96 @@
 import requests
+from typing import Dict, List
 
-# URL de Gist con el token de Hugging Face
-HF_API_GIST_URL = "https://gist.githubusercontent.com/dpalominoj/9dba92625b104eba4d093a10cf37a6cb/raw/dce732f795ae1ad64ab093800fd764e4b5f66645/token_hf.txt"
+# a. datos simulados de BD
+DATOS_VOLUNTARIADO = {
+    "programas_activos": {
+        "educacion_infantil": {"cupos": 15, "disponible": True},
+        "reforestacion": {"cupos": "ilimitados", "disponible": True},
+        "apoyo_adultos_mayores": {"cupos": 30, "disponible": False}
+    },
+    "accesibilidad": {
+        "discapacidad_visual": ["lectura_inclusiva"],
+        "discapacidad_auditiva": []
+    }
+}
 
-def get_api_link(url: str) -> str | None:
-    try:
-        response = requests.get(url)
-        response.raise_for_status() 
-        return response.text.strip()
-    except requests.exceptions.RequestException as e:
-        print(f"Error al leer la API key desde la URL ({url}): {e}")
-        return None
+# b. contexto fijo
+PLATFORM_CONTEXT = """
+Eres un asistente virtual para KONECTAi, una plataforma inclusiva de voluntariado. Responde de manera amable y profesional.
+Información clave:
+- Categorias de Programas: Niños y Adolescentes, Educación y formación, Ambiente y sostenibilidad, Deporte y recreación.
+- Contacto: +51 968 875 239 | ayuda@konectai.org
+"""
 
-# Obtener el token de Hugging Face
-HF_API_KEY = get_api_link(HF_API_GIST_URL)
-
-# Modelos válidos:
+# d. Modelos válidos API de Hugging Face
 # FUNCIONA aunque alucina: API_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta"
-API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"
+HF_API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"
+HF_TOKEN = "https://gist.githubusercontent.com/dpalominoj/9dba92625b104eba4d093a10cf37a6cb/raw/dce732f795ae1ad64ab093800fd764e4b5f66645/token_hf.txt"
 
-def query(prompt: str):
+# e. Historial de conversaciones
+conversation_history: Dict[str, List[Dict[str, str]]] = {}
+
+def get_chatbot_response(user_message: str, session_id: str) -> str:
+    # Verifica si el cliente está configurado para HF
+    if not HF_TOKEN:
+        return "El servicio de chatbot no está disponible actualmente (API key no configurada). Por favor, contacta con soporte."
+
+    # Inicializa el historial si es nueva sesión
+    if session_id not in conversation_history:
+        conversation_history[session_id] = [
+            {"role": "system", "content": "Eres un asistente útil para una plataforma de voluntariado. Sé amable y conciso."},
+            {"role": "system", "content": PLATFORM_CONTEXT}
+        ]
+
+    # Añade el mensaje del usuario al historial
+    conversation_history[session_id].append({"role": "user", "content": user_message})
+    # Genera el prompt dinámico con datos de ejemplo
+    contexto_actualizado = f"""
+    [CONTEXTO ACTUALIZADO]
+    **Programas Activos y Cupos**:
+        - Niños y Adolescentes (Educación Infantil): {'Disponible' if DATOS_VOLUNTARIADO["programas_activos"]["educacion_infantil"]["disponible"] else 'Agotado'} | Cupos: {DATOS_VOLUNTARIADO["programas_activos"]["educacion_infantil"]["cupos"]}.
+        - Ambiente y Sostenibilidad (Reforestación): {'Disponible' if DATOS_VOLUNTARIADO["programas_activos"]["reforestacion"]["disponible"] else 'Agotado'} | Cupos: {DATOS_VOLUNTARIADO["programas_activos"]["reforestacion"]["cupos"]}.
+        - Educación y Formación (Adultos Mayores): {'Disponible' if DATOS_VOLUNTARIADO["programas_activos"]["apoyo_adultos_mayores"]["disponible"] else 'Agotado'} | Cupos: {DATOS_VOLUNTARIADO["programas_activos"]["apoyo_adultos_mayores"]["cupos"]}.
+    **Accesibilidad**:
+        - Discapacidad Visual: {', '.join(DATOS_VOLUNTARIADO["accesibilidad"]["discapacidad_visual"]) or 'Ningún programa disponible'}.
+        - Discapacidad Auditiva: {', '.join(DATOS_VOLUNTARIADO["accesibilidad"]["discapacidad_auditiva"]) or 'Ningún programa disponible'}.
+    {PLATFORM_CONTEXT}
+    """
+
+    prompt = f"""
+    [INST] {contexto_actualizado}
+    
+    Historial de conversación:
+    {conversation_history[session_id]}
+
+    Pregunta actual: {user_message}
+    Reglas:
+    1. Usa los datos proporcionados para responder.
+    2. Si no sabes, ofrece los contactos.
+    3. Sé breve (1-2 líneas).
+    [/INST]
+    """
+
     try:
+        # Llama a la API de Hugging Face
         response = requests.post(
-            API_URL,
-            headers={"Authorization": f"Bearer {HF_API_KEY}"},
-            json={"inputs": f"[INST] {prompt} Responde solo si tienes información precisa. [/INST]", "parameters": {"max_new_tokens": 200}}
+            HF_API_URL,
+            headers={"Authorization": f"Bearer {HF_TOKEN}"},
+            json={
+                "inputs": prompt,
+                "parameters": {"temperature": 0.2, "max_new_tokens": 150}
+            }
         )
-        response.raise_for_status()  # Lanza error si hay 404/500
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Error en la API: {e}\nRevisa: 1) Token válido, 2) Modelo disponible, 3) URL correcta")
-        return None
+        respuesta = response.json()[0]["generated_text"]
 
-# Ejemplo de uso
-if HF_API_KEY:
-    respuesta = query("¿Cómo funciona DeepSeek?")
-    print(respuesta[0]["generated_text"] if respuesta else "Falló la consulta")
-else:
-    print("No se encontró el token de Hugging Face")
+        # Filtra respuestas vacías o errores
+        if "no tengo información" in respuesta.lower():
+            respuesta = "No tengo datos sobre eso. Por favor contáctanos: +51 968 875 239 | ayuda@konectai.org"
+
+        # Añade la respuesta al historial
+        conversation_history[session_id].append({"role": "assistant", "content": respuesta})
+        return respuesta
+
+    except Exception as e:
+        return f"Error temporal. Por favor contáctanos directamente: +51 919 168 212"
+        
