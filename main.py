@@ -1,6 +1,7 @@
 import os
 from flask import Flask, send_from_directory
 from flask_socketio import SocketIO, emit
+from dotenv import load_dotenv
 from sqlalchemy import inspect, func # Añadir func
 from database.db import db, init_app
 from controller.routes import main_bp
@@ -14,6 +15,8 @@ from flask_migrate import Migrate
 from model.models import Usuarios, Notificaciones # Añadir Notificaciones
 from database.datos_iniciales import seed_data
 
+# Load environment variables from .env file before other imports that might need them
+load_dotenv()
 
 app = Flask(__name__, instance_relative_config=True, template_folder='view/templates')
 app.static_folder = 'view/assets'
