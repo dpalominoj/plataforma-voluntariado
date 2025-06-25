@@ -1,10 +1,11 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, current_app, request
 from flask_login import login_required, current_user
 from sqlalchemy.orm import joinedload # Importar joinedload
-from model.models import UsuarioDiscapacidad, Discapacidades, Inscripciones, Actividades, Usuarios, EstadoActividad, EstadoUsuario
+from model.models import UsuarioDiscapacidad, Discapacidades, Inscripciones, Actividades, Usuarios, EstadoActividad, EstadoUsuario, Organizaciones
 from database.db import db
 from services.participation_service import predecir_participacion
 from services.compatibility_service import get_compatibility_scores
+from services.prediction_service import PredictionService # Importar el nuevo servicio
 
 dashboard_bp = Blueprint('user_dashboard', __name__,
                          template_folder='../view/templates/dashboards',
@@ -69,10 +70,48 @@ def dashboard():
 
         member_organizations = current_user.organizaciones
 
+        # Obtener el ID de la primera organización del organizador (o manejar si no tiene)
+        # Para este ejemplo, asumimos que el organizador está asociado al menos a una organización
+        # y usaremos la primera para las predicciones de horario.
+        # En un sistema real, podría haber una selección de organización o una lógica más compleja.
+        organizer_primary_org_id = None
+        if current_user.organizaciones:
+            # Intentar obtener la organización principal o la primera de la lista
+            # Aquí necesitamos el ID de la *organización* a la que pertenece el *usuario organizador*
+            # y luego, el PredictionService usará ese ID para encontrar actividades de ESA organización.
+
+            # El current_user.organizaciones es una lista de objetos Organizaciones.
+            # Necesitamos el id_usuario del current_user para filtrar sus propias organizaciones si es necesario,
+            # pero para PredictionService, pasamos el id_organizacion.
+
+            # Si un organizador puede pertenecer a múltiples organizaciones, decidimos cuál usar.
+            # Por simplicidad, usamos la primera.
+            first_org = current_user.organizaciones[0]
+            organizer_primary_org_id = first_org.id_organizacion
+
+
+        suggested_notification_times = "No hay sugerencias de horarios disponibles en este momento."
+        if organizer_primary_org_id is not None:
+            try:
+                prediction_service = PredictionService(threshold=0.5) # Umbral de ejemplo
+                # Pasar el ID de la organización al servicio
+                suggested_times_result = prediction_service.get_optimal_time_slots(organizer_primary_org_id)
+
+                if isinstance(suggested_times_result, str): # Mensaje de error o baja precisión
+                    suggested_notification_times = suggested_times_result
+                elif suggested_times_result: # Lista de diccionarios de horarios
+                    suggested_notification_times = suggested_times_result
+                # Si está vacío pero no es un string, se mantendrá el mensaje por defecto.
+            except Exception as e:
+                current_app.logger.error(f"Error al obtener horarios sugeridos para organizador {current_user.id_usuario} (org_id {organizer_primary_org_id}): {e}")
+                # No flashear error aquí para no interrumpir el dashboard, solo loguear.
+                # El mensaje por defecto en la plantilla indicará que no hay sugerencias.
+
         return render_template('organizer_dashboard.html',
                                title="Panel de Organizador",
                                created_programs_con_prediccion=actividades_con_prediccion,
-                               member_organizations=member_organizations)
+                               member_organizations=member_organizations,
+                               suggested_notification_times=suggested_notification_times)
     elif current_user.perfil == 'voluntario':
         user_enrollments = db.session.query(Inscripciones, Actividades) \
                             .join(Actividades, Inscripciones.id_actividad == Actividades.id_actividad) \
