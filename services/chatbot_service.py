@@ -25,7 +25,6 @@ Información clave:
 # d. Modelos válidos API de Hugging Face
 # FUNCIONA aunque alucina: API_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta"
 HF_API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"
-#HF_TOKEN = "https://gist.githubusercontent.com/dpalominoj/9dba92625b104eba4d093a10cf37a6cb/raw/dce732f795ae1ad64ab093800fd764e4b5f66645/token_hf.txt"
 HF_TOKEN_URL = "https://gist.githubusercontent.com/dpalominoj/9dba92625b104eba4d093a10cf37a6cb/raw/dce732f795ae1ad64ab093800fd764e4b5f66645/token_hf.txt"
 
 def get_hf_token():
@@ -93,7 +92,10 @@ def get_chatbot_response(user_message: str, session_id: str) -> str:
         )
         respuesta = response.json()[0]["generated_text"]
 
-        # Filtra respuestas vacías o errores
+        # Filtra el prompt, respuestas vacías o errores
+        if '[/INST]' in respuesta:
+            respuesta = respuesta.split('[/INST]', 1)[-1].strip()
+
         if "no tengo información" in respuesta.lower():
             respuesta = "No tengo datos sobre eso. Por favor contáctanos: +51 968 875 239 | ayuda@konectai.org"
 
