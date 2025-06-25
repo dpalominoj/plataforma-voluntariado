@@ -1,11 +1,11 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, current_app, request
 from flask_login import login_required, current_user
-from sqlalchemy.orm import joinedload # Importar joinedload
+from sqlalchemy.orm import joinedload
 from model.models import UsuarioDiscapacidad, Discapacidades, Inscripciones, Actividades, Usuarios, EstadoActividad, EstadoUsuario, Organizaciones
 from database.db import db
 from services.participation_service import predecir_participacion
 from services.compatibility_service import get_compatibility_scores
-from services.prediction_service import PredictionService # Importar el nuevo servicio
+from services.rangohorario_service import PredictionService
 
 dashboard_bp = Blueprint('user_dashboard', __name__,
                          template_folder='../view/templates/dashboards',
@@ -17,10 +17,10 @@ def _get_participation_indicator_info(prediction_output):
 
     if prediction_output:
         if 'error' not in prediction_output and 'probabilidad' in prediction_output:
-            prob = prediction_output.get('probabilidad') # Usar .get() para seguridad
+            prob = prediction_output.get('probabilidad')
             if prob is None:
-                indicator = '⚪' # Círculo blanco si la probabilidad no se pudo calcular
-                indicator_text = 'Probabilidad no calculada (ej. datos insuficientes)'
+                indicator = 'No se pudo calcular probabilidad'
+                indicator_text = 'Probabilidad no calculada (datos insuficientes)'
             elif prob < 0.3:
                 indicator = '🔴' # Círculo rojo para baja participación
                 indicator_text = f"Baja participación (Prob: {prob:.2f})"
@@ -32,7 +32,7 @@ def _get_participation_indicator_info(prediction_output):
                 indicator_text = f"Alta participación (Prob: {prob:.2f})"
         elif 'error' in prediction_output:
             indicator_text = prediction_output['error']
-        elif 'info' in prediction_output: # Usar elif para evitar sobreescribir un error con info
+        elif 'info' in prediction_output:
             indicator_text = prediction_output['info']
     
     return indicator, indicator_text
@@ -70,22 +70,8 @@ def dashboard():
 
         member_organizations = current_user.organizaciones
 
-        # Obtener el ID de la primera organización del organizador (o manejar si no tiene)
-        # Para este ejemplo, asumimos que el organizador está asociado al menos a una organización
-        # y usaremos la primera para las predicciones de horario.
-        # En un sistema real, podría haber una selección de organización o una lógica más compleja.
         organizer_primary_org_id = None
         if current_user.organizaciones:
-            # Intentar obtener la organización principal o la primera de la lista
-            # Aquí necesitamos el ID de la *organización* a la que pertenece el *usuario organizador*
-            # y luego, el PredictionService usará ese ID para encontrar actividades de ESA organización.
-
-            # El current_user.organizaciones es una lista de objetos Organizaciones.
-            # Necesitamos el id_usuario del current_user para filtrar sus propias organizaciones si es necesario,
-            # pero para PredictionService, pasamos el id_organizacion.
-
-            # Si un organizador puede pertenecer a múltiples organizaciones, decidimos cuál usar.
-            # Por simplicidad, usamos la primera.
             first_org = current_user.organizaciones[0]
             organizer_primary_org_id = first_org.id_organizacion
 
@@ -104,8 +90,6 @@ def dashboard():
                 # Si está vacío pero no es un string, se mantendrá el mensaje por defecto.
             except Exception as e:
                 current_app.logger.error(f"Error al obtener horarios sugeridos para organizador {current_user.id_usuario} (org_id {organizer_primary_org_id}): {e}")
-                # No flashear error aquí para no interrumpir el dashboard, solo loguear.
-                # El mensaje por defecto en la plantilla indicará que no hay sugerencias.
 
         return render_template('organizer_dashboard.html',
                                title="Panel de Organizador",
@@ -120,9 +104,6 @@ def dashboard():
                             .all()
 
      
-        # 1. Obtener todas las actividades abiertas que podrían ser de interés
-        # Cargar explícitamente las relaciones 'discapacidades' y 'organizacion'
-        # para evitar N+1 queries más adelante.
         actividades_abiertas = Actividades.query.options(
                                     joinedload(Actividades.discapacidades), # Carga la colección de objetos Discapacidad asociados a la Actividad
                                     joinedload(Actividades.organizacion)   # Carga la Organización de la Actividad
@@ -149,13 +130,10 @@ def dashboard():
             'disabilities': user_disabilities
         }
 
-        # 3. Cálculo de compatibilidad de programas con el perfil del voluntario.
+        # Cálculo de compatibilidad de programas con el perfil del voluntario.
         programs_or_activities_for_compatibility = []
         for actividad in actividades_abiertas:
             # Obtener nombres de discapacidades soportadas por la actividad
-            # Es importante asegurarse de que actividad.discapacidades se carga eficientemente.
-            # Esto se maneja con joinedload en la consulta de 'actividades_abiertas'.
-            # 'actividad.discapacidades' será una lista de objetos Discapacidad.
             supported_disabilities_names = [discapacidad.nombre.value for discapacidad in actividad.discapacidades if discapacidad.nombre]
 
             item_data = {
@@ -177,7 +155,7 @@ def dashboard():
                 current_app.logger.error(f"Error al llamar a get_compatibility_scores para el usuario {user_profile.get('id')}: {e}")
                 flash("Error al calcular la compatibilidad de actividades. Intente más tarde.", "danger")
         
-        # 4. Procesamiento de actividades para predicción de participación y combinación con compatibilidad.
+        # Procesamiento de actividades para predicción de participación y combinación con compatibilidad.
         for actividad in actividades_abiertas:
             # Obtener predicción de participación para la actividad
             prediction_output = predecir_participacion(actividad.id_actividad)
@@ -240,22 +218,12 @@ def profile():
     from controller.forms import EditProfileForm
     form = EditProfileForm(obj=current_user)
 
-    # Formatear fecha_nacimiento para el campo del formulario si existe y no hay errores en él
-    # Esto asegura que si la página se recarga (ej. por un error de validación manejado en profile.edit_profile y redirigido aquí),
-    # el campo de fecha mantenga el valor correcto o el último valor ingresado si es válido.
-    # Sin embargo, la validación y el manejo de datos POST ahora están centralizados en profile.edit_profile.
-    # Aquí, principalmente poblamos el formulario para visualización inicial.
     if current_user.fecha_nacimiento and not form.fecha_nacimiento.errors:
-        form.fecha_nacimiento.data = current_user.fecha_nacimiento # WTForms maneja la conversión a string
-
-    # Si se redirige aquí después de un error de validación en profile.edit_profile,
-    # los errores del formulario podrían estar en flash o necesitaríamos una forma de pasarlos.
-    # Por simplicidad, los mensajes flash manejarán los errores generales.
-    # El formulario se mostrará con los datos actuales del usuario.
-
+        form.fecha_nacimiento.data = current_user.fecha_nacimiento
+      
     return render_template('profile.html',
-                           user=current_user, # Aunque form(obj=current_user) ya lo usa, es bueno tenerlo explícito para la vista.
-                           form=form, # Pasar el formulario a la plantilla
+                           user=current_user,
+                           form=form,
                            user_disabilities_data=user_disabilities_data,
                            user_preferences=user_preferences,
                            user_enrollments=user_enrollments,
@@ -286,8 +254,6 @@ def admin_delete_user(user_id):
 
     try:
         # Considerar la eliminación en cascada o el manejo de dependencias aquí
-        # Por ejemplo, si hay inscripciones, notificaciones, etc. asociadas.
-        # Por ahora, se eliminará directamente.
         db.session.delete(user_to_delete)
         db.session.commit()
         flash(f"Usuario {user_to_delete.nombre} eliminado correctamente.", "success")
@@ -312,7 +278,7 @@ def admin_change_user_status(user_id):
         return redirect(url_for('user_dashboard.admin_manage_users'))
 
     try:
-        new_status_enum = EstadoUsuario(new_status_str) # Convertir string a Enum
+        new_status_enum = EstadoUsuario(new_status_str)
         user_to_update.estado_usuario = new_status_enum
         db.session.commit()
         flash(f"Estado del usuario {user_to_update.nombre} actualizado a {new_status_str}.", "success")
