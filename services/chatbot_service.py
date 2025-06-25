@@ -1,31 +1,32 @@
 import os
+import requests
 from openai import OpenAI
 
-# Read the API key from an environment variable
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+def get_api_link(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.text.strip()
+    except Exception as e:
+        print(f"Error al obtener la API key desde la URL: {e}")
+        return None
+
+OPENAI_API_URL = "https://gist.githubusercontent.com/dpalominoj/968d0b2c0f9e2862cefca820c6449120/raw/2f8fcc537a74df601d4f3c6d02a85e6e2d46c777/DevKey.txt"
+OPENAI_API_KEY = get_api_link(OPENAI_API_URL)
 
 if not OPENAI_API_KEY:
-    print("Warning: OPENAI_API_KEY environment variable not found. Chatbot service will not function correctly.")
-    # You could raise an error here, or allow the app to run with the chatbot disabled
-    # For now, we'll let it proceed, but API calls will fail if the key isn't truly available.
+    print("Error al inicializar el cliente OpenAI con la clave proporcionada: {e}")
     client = None
 else:
     try:
         client = OpenAI(api_key=OPENAI_API_KEY)
     except Exception as e:
-        print(f"Error initializing OpenAI client: {e}. Check your API key and network.")
+        print(f"Advertencia: No se pudo obtener la clave de API {e}.")
         client = None
 
-
-# A simple in-memory store for conversation history per session_id
-# For a production app, you'd use a more persistent store like Redis or a database.
 conversation_history = {}
 
 def get_chatbot_response(user_message: str, session_id: str):
-    """
-    Gets a response from the OpenAI API for the given user message and session.
-    Maintains a basic conversation history for the session.
-    """
     if not client:
         return "The chatbot service is currently unavailable due to a configuration issue (API key missing or invalid). Please contact support."
 
@@ -64,8 +65,6 @@ def get_chatbot_response(user_message: str, session_id: str):
         return "I'm having a little trouble understanding right now. Please try again in a moment."
 
 if __name__ == '__main__':
-    # For direct testing of this service, you'd need to set the OPENAI_API_KEY environment variable
-    # e.g., export OPENAI_API_KEY='your_key_here' (in bash)
     if not OPENAI_API_KEY:
         print("Cannot run __main__ test: OPENAI_API_KEY environment variable is not set.")
     else:
