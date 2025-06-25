@@ -1,6 +1,6 @@
 import requests
 
-# URL de tu Gist con el token de Hugging Face
+# URL de Gist con el token de Hugging Face
 HF_API_GIST_URL = "https://gist.githubusercontent.com/dpalominoj/9dba92625b104eba4d093a10cf37a6cb/raw/dce732f795ae1ad64ab093800fd764e4b5f66645/token_hf.txt"
 
 def get_api_link(url: str) -> str | None:
