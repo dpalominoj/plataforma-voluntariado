@@ -25,14 +25,24 @@ Información clave:
 # d. Modelos válidos API de Hugging Face
 # FUNCIONA aunque alucina: API_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta"
 HF_API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"
-HF_TOKEN = "https://gist.githubusercontent.com/dpalominoj/9dba92625b104eba4d093a10cf37a6cb/raw/dce732f795ae1ad64ab093800fd764e4b5f66645/token_hf.txt"
+#HF_TOKEN = "https://gist.githubusercontent.com/dpalominoj/9dba92625b104eba4d093a10cf37a6cb/raw/dce732f795ae1ad64ab093800fd764e4b5f66645/token_hf.txt"
+HF_TOKEN_URL = "https://gist.githubusercontent.com/dpalominoj/9dba92625b104eba4d093a10cf37a6cb/raw/dce732f795ae1ad64ab093800fd764e4b5f66645/token_hf.txt"
+
+def get_hf_token():
+    try:
+        resp = requests.get(HF_TOKEN_URL, timeout=5)
+        resp.raise_for_status()
+        return resp.text.strip()
+    except Exception:
+        return None
 
 # e. Historial de conversaciones
 conversation_history: Dict[str, List[Dict[str, str]]] = {}
 
 def get_chatbot_response(user_message: str, session_id: str) -> str:
     # Verifica si el cliente está configurado para HF
-    if not HF_TOKEN:
+    hf_token = get_hf_token()
+    if not hf_token:
         return "El servicio de chatbot no está disponible actualmente (API key no configurada). Por favor, contacta con soporte."
 
     # Inicializa el historial si es nueva sesión
