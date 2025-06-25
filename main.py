@@ -1,31 +1,26 @@
 import os
 from flask import Flask, send_from_directory
-# from flask_socketio import SocketIO, emit # No longer needed for chat
-import openai # Importar OpenAI
-from sqlalchemy import inspect, func # Añadir func
+import openai
+from sqlalchemy import inspect, func
 from database.db import db, init_app
 from controller.routes import main_bp
 from controller.auth_routes import auth_bp
 from controller.dashboard_routes import dashboard_bp
 from controller.program_controller import program_bp
 from controller.user_controller import profile_bp
-from controller.notification_controller import notifications_bp # <--- Añadir import
+from controller.notification_controller import notifications_bp
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
-from model.models import Usuarios, Notificaciones # Añadir Notificaciones
+from model.models import Usuarios, Notificaciones
 from database.datos_iniciales import seed_data
 
 
-app = Flask(__name__, instance_relative_config=True, template_folder='view/templates', static_folder='static', static_url_path='/static')
-# app.static_folder = 'view/assets' # This was causing issues with url_for('static', ...)
-# app.static_url_path = '/assets'   # This was causing issues with url_for('static', ...)
+app = Flask(__name__, instance_relative_config=True, template_folder='view/templates', static_folder='view', static_url_path='/static')
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key968')
 default_sqlite_uri = f"sqlite:///{os.path.join(app.instance_path, 'konectai.db')}"
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', default_sqlite_uri)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# socketio = SocketIO(app) # No longer needed for chat
 
 try:
     os.makedirs(app.instance_path)
@@ -76,7 +71,7 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(program_bp)
 app.register_blueprint(profile_bp)
-app.register_blueprint(notifications_bp) # <--- Registrar el blueprint de notificaciones
+app.register_blueprint(notifications_bp)
 
 @app.route('/services/<path:filename>')
 def serve_service_file(filename):
@@ -88,11 +83,6 @@ def seed_db_command():
     with app.app_context():
         seed_data()
 
-# Socket.IO Event Handlers are removed as they are no longer used for the chat.
-# The chat functionality is now handled by the /api/chatbot/conversation endpoint.
-
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    # TODO: DEBUG debe ser False en un entorno de producción
-    app.run(host='0.0.0.0', port=port, debug=True) # Use standard Flask dev server
-    # socketio.run(app, host='0.0.0.0', port=port, debug=True) # SocketIO server no longer needed for chat
+    app.run(host='0.0.0.0', port=port, debug=True) 
