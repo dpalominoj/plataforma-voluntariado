@@ -120,7 +120,7 @@
                         </div>
                         {% if program.id_actividad in compatibility_scores and compatibility_scores[program.id_actividad] is not none %}
                             <p class="mt-3 text-sm font-medium text-green-600">
-                                Tu Compatibilidad: {{ "%.2f"|format(compatibility_scores[program.id_actividad]) }}%
+                                Tu Compatibilidad: {{ "%.1f"|format(compatibility_scores[program.id_actividad]) }}%
                             </p>
                         {% endif %}
                         <div class="mt-6 flex items-center">

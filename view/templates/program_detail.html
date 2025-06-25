@@ -22,12 +22,12 @@
             <h1 class="text-4xl font-extrabold text-gray-900 mb-1 tracking-tight">{{ program.nombre }}</h1>
             <p class="text-base text-gray-600 mb-2">Publicado por: <span class="font-semibold">{{ program.organizacion.nombre_org if program.organizacion else 'Organización no especificada' }}</span></p>
 
-            {% if program.compatibilidad is not none %}
-            <div class="my-4 p-3 rounded-md {% if program.compatibilidad >= 75 %}bg-green-50 border-l-4 border-green-500{% elif program.compatibilidad >= 50 %}bg-yellow-50 border-l-4 border-yellow-500{% else %}bg-red-50 border-l-4 border-red-500{% endif %}">
-                 <p class="text-lg font-semibold {% if program.compatibilidad >= 75 %}text-green-700{% elif program.compatibilidad >= 50 %}text-yellow-700{% else %}text-red-700{% endif %}">
-                    <span class="text-2xl">✨</span> Compatibilidad Contigo: <span class="font-bold">{{ "%.0f"|format(program.compatibilidad|float) }}%</span>
+            {% if compatibility_score_detail is not none %}
+            <div class="my-4 p-3 rounded-md {% if compatibility_score_detail >= 75 %}bg-green-50 border-l-4 border-green-500{% elif compatibility_score_detail >= 50 %}bg-yellow-50 border-l-4 border-yellow-500{% else %}bg-red-50 border-l-4 border-red-500{% endif %}">
+                 <p class="text-lg font-semibold {% if compatibility_score_detail >= 75 %}text-green-700{% elif compatibility_score_detail >= 50 %}text-yellow-700{% else %}text-red-700{% endif %}">
+                    <span class="text-2xl">✨</span> Compatibilidad Contigo: <span class="font-bold">{{ "%.1f"|format(compatibility_score_detail|float) }}%</span>
                  </p>
-                 <p class="text-sm {% if program.compatibilidad >= 75 %}text-green-600{% elif program.compatibilidad >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">Calculada según tus intereses y habilidades.</p>
+                 <p class="text-sm {% if compatibility_score_detail >= 75 %}text-green-600{% elif compatibility_score_detail >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">Calculada según tus intereses y habilidades.</p>
             </div>
             {% endif %}
 
@@ -40,27 +40,27 @@
                     <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Detalles Clave</h2>
                     <dl class="space-y-4">
                         <div>
-                            <dt class="font-semibold text-gray-700 flex items-center"><span class="mr-2 text-purple-600">📅</span>Fecha y Hora:</dt>
+                            <dt class="font-semibold text-gray-700">Fecha y Hora:</dt>
                             <dd class="mt-1 text-gray-800 pl-6">{{ program.fecha_actividad.strftime('%d/%m/%Y %H:%M Hs') if program.fecha_actividad else 'No especificada' }}</dd>
                         </div>
                         <div>
-                            <dt class="font-semibold text-gray-700 flex items-center"><span class="mr-2 text-purple-600">📍</span>Ubicación:</dt>
+                            <dt class="font-semibold text-gray-700">Ubicación:</dt>
                             <dd class="mt-1 text-gray-800 pl-6">{{ program.ubicacion if program.ubicacion else 'No especificada' }}</dd>
                         </div>
                         <div>
-                            <dt class="font-semibold text-gray-700 flex items-center"><span class="mr-2 text-purple-600">💻</span>Modalidad:</dt>
+                            <dt class="font-semibold text-gray-700">Modalidad:</dt>
                             <dd class="mt-1 text-gray-800 pl-6">{{ program.tipo.value if program.tipo else 'No especificado' }}</dd>
                         </div>
                         <div>
-                            <dt class="font-semibold text-gray-700 flex items-center"><span class="mr-2 text-purple-600">📊</span>Estado Actual:</dt>
+                            <dt class="font-semibold text-gray-700">Estado Actual:</dt>
                             <dd class="mt-1 text-gray-800 pl-6">{{ program.estado.value if program.estado else 'No especificado' }}</dd>
                         </div>
                         <div>
-                            <dt class="font-semibold text-gray-700 flex items-center"><span class="mr-2 text-purple-600">👥</span>Cupos Disponibles:</dt>
+                            <dt class="font-semibold text-gray-700">Cupos Disponibles:</dt>
                             <dd class="mt-1 text-gray-800 pl-6">{{ program.cupo_maximo if program.cupo_maximo is not none else 'Ilimitados' }}</dd>
                         </div>
                         <div>
-                            <dt class="font-semibold text-gray-700 flex items-center"><span class="mr-2 text-purple-600">♿</span>¿Es Inclusiva?:</dt>
+                            <dt class="font-semibold text-gray-700">¿Es Inclusiva?:</dt>
                             <dd class="mt-1 text-gray-800 pl-6">
                                 {% if program.es_inclusiva %}
                                     <span class="px-2 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800">Sí</span>
