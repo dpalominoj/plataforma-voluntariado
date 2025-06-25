@@ -1,4 +1,3 @@
-import os
 import requests
 
 # URL de tu Gist con el token de Hugging Face
@@ -16,22 +15,26 @@ def get_api_link(url: str) -> str | None:
 # Obtener el token de Hugging Face
 HF_API_KEY = get_api_link(HF_API_GIST_URL)
 
-if not HF_API_KEY:
-    print("No se pudo obtener el token de Hugging Face")
-else:
-    # Ejemplo de llamada a la API de Hugging Face (modelo Mistral)
-    API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1"
-    headers = {"Authorization": f"Bearer {HF_API_KEY}"}
+# Modelos válidos:
+# FUNCIONA aunque alucina: API_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta"
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"
 
-    def query(prompt: str):
-        try:
-            response = requests.post(API_URL, headers=headers, json={"inputs": prompt})
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            print(f"Error en la API: {e}")
-            return None
+def query(prompt: str):
+    try:
+        response = requests.post(
+            API_URL,
+            headers={"Authorization": f"Bearer {HF_API_KEY}"},
+            json={"inputs": f"[INST] {prompt} Responde solo si tienes información precisa. [/INST]", "parameters": {"max_new_tokens": 200}}
+        )
+        response.raise_for_status()  # Lanza error si hay 404/500
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error en la API: {e}\nRevisa: 1) Token válido, 2) Modelo disponible, 3) URL correcta")
+        return None
 
-    # Probar el chatbot
+# Ejemplo de uso
+if HF_API_KEY:
     respuesta = query("¿Cómo funciona DeepSeek?")
-    print(respuesta)
+    print(respuesta[0]["generated_text"] if respuesta else "Falló la consulta")
+else:
+    print("No se encontró el token de Hugging Face")
