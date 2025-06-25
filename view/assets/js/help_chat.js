@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatConnectionError = document.getElementById('chatConnectionError');
 
     // Generar un sessionId único para esta sesión de chat del cliente
-    // Podría ser más robusto, pero para este caso es suficiente.
     const sessionId = `chat_session_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
 
     function initializeChat() {
