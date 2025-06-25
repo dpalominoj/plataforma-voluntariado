@@ -73,9 +73,9 @@ def get_chatbot_response(user_message: str, session_id: str) -> str:
     contexto_actualizado = f"""
     [CONTEXTO ACTUALIZADO]
     **Programas Activos y Cupos**:
-        - {DATOS_VOLUNTARIADO["programas_activos"]["nombre"]} ({DATOS_VOLUNTARIADO["programas_activos"]["categoria"]}): {'Disponible' if DATOS_VOLUNTARIADO["programas_activos"]["Lectura_inclusiva"]["disponible"] else 'Agotado'} | Cupos: {DATOS_VOLUNTARIADO["programas_activos"]["Lectura_inclusiva"]["cupos"]}.
-        - {DATOS_VOLUNTARIADO["programas_activos"]["nombre"]} ({DATOS_VOLUNTARIADO["programas_activos"]["categoria"]}): {'Disponible' if DATOS_VOLUNTARIADO["programas_activos"]["Deporte_inclusivo"]["disponible"] else 'Agotado'} | Cupos: {DATOS_VOLUNTARIADO["programas_activos"]["Deporte_inclusivo"]["cupos"]}.
-        - {DATOS_VOLUNTARIADO["programas_activos"]["nombre"]} ({DATOS_VOLUNTARIADO["programas_activos"]["categoria"]}): {'Disponible' if DATOS_VOLUNTARIADO["programas_activos"]["Limpieza_Costera"]["disponible"] else 'Agotado'} | Cupos: {DATOS_VOLUNTARIADO["programas_activos"]["Limpieza_Costera"]["cupos"]}.
+        - {DATOS_VOLUNTARIADO["programas_activos"]["Lectura_inclusiva"]["nombre"]} ({DATOS_VOLUNTARIADO["programas_activos"]["Lectura_inclusiva"]["categoria"]}): {'Disponible' if DATOS_VOLUNTARIADO["programas_activos"]["Lectura_inclusiva"]["disponible"] else 'Agotado'} | Cupos: {DATOS_VOLUNTARIADO["programas_activos"]["Lectura_inclusiva"]["cupos"]}.
+        - {DATOS_VOLUNTARIADO["programas_activos"]["Deporte_inclusivo"]["nombre"]} ({DATOS_VOLUNTARIADO["programas_activos"]["Deporte_inclusivo"]["categoria"]}): {'Disponible' if DATOS_VOLUNTARIADO["programas_activos"]["Deporte_inclusivo"]["disponible"] else 'Agotado'} | Cupos: {DATOS_VOLUNTARIADO["programas_activos"]["Deporte_inclusivo"]["cupos"]}.
+        - {DATOS_VOLUNTARIADO["programas_activos"]["Limpieza_Costera"]["nombre"]} ({DATOS_VOLUNTARIADO["programas_activos"]["Limpieza_Costera"]["categoria"]}): {'Disponible' if DATOS_VOLUNTARIADO["programas_activos"]["Limpieza_Costera"]["disponible"] else 'Agotado'} | Cupos: {DATOS_VOLUNTARIADO["programas_activos"]["Limpieza_Costera"]["cupos"]}.
     **Accesibilidad**:
         - Discapacidad Visual: {', '.join([DATOS_VOLUNTARIADO["programas_activos"][p]["nombre"] for p in DATOS_VOLUNTARIADO["accesibilidad"]["discapacidad_visual"]]) or 'Ningún programa disponible'}.
         - Discapacidad Motriz: {', '.join([DATOS_VOLUNTARIADO["programas_activos"][p]["nombre"] for p in DATOS_VOLUNTARIADO["accesibilidad"]["discapacidad_motriz"]]) or 'Ningún programa disponible'}.
