@@ -4,12 +4,28 @@ from typing import Dict, List
 # a. datos simulados de BD
 DATOS_VOLUNTARIADO = {
     "programas_activos": {
-        "educacion_infantil": {"cupos": 15, "disponible": True},
-        "reforestacion": {"cupos": "ilimitados", "disponible": True},
-        "apoyo_adultos_mayores": {"cupos": 30, "disponible": False}
+        "Lectura_inclusiva": {
+            "nombre": "Taller de lectura inclusiva",
+            "categoria": "Educación y Formación",
+            "cupos": 20,
+            "disponible": True
+        },
+        "Deporte_inclusivo": {
+            "nombre": "Jornada deportiva inclusiva",
+            "categoria": "Deporte y Recreación",
+            "cupos": "ilimitados",
+            "disponible": True
+        },
+        "Limpieza_Costera": {
+            "nombre": "Campaña de Limpieza Costera",
+            "categoria": "Ambiente y Sostenibilidad",
+            "cupos": 15,
+            "disponible": True
+        }
     },
     "accesibilidad": {
-        "discapacidad_visual": ["lectura_inclusiva"],
+        "discapacidad_visual": ["Lectura_inclusiva"],
+        "discapacidad_motriz": ["Deporte_inclusivo"],
         "discapacidad_auditiva": []
     }
 }
@@ -57,14 +73,15 @@ def get_chatbot_response(user_message: str, session_id: str) -> str:
     contexto_actualizado = f"""
     [CONTEXTO ACTUALIZADO]
     **Programas Activos y Cupos**:
-        - Niños y Adolescentes (Educación Infantil): {'Disponible' if DATOS_VOLUNTARIADO["programas_activos"]["educacion_infantil"]["disponible"] else 'Agotado'} | Cupos: {DATOS_VOLUNTARIADO["programas_activos"]["educacion_infantil"]["cupos"]}.
-        - Ambiente y Sostenibilidad (Reforestación): {'Disponible' if DATOS_VOLUNTARIADO["programas_activos"]["reforestacion"]["disponible"] else 'Agotado'} | Cupos: {DATOS_VOLUNTARIADO["programas_activos"]["reforestacion"]["cupos"]}.
-        - Educación y Formación (Adultos Mayores): {'Disponible' if DATOS_VOLUNTARIADO["programas_activos"]["apoyo_adultos_mayores"]["disponible"] else 'Agotado'} | Cupos: {DATOS_VOLUNTARIADO["programas_activos"]["apoyo_adultos_mayores"]["cupos"]}.
+        - {DATOS_VOLUNTARIADO["programas_activos"]["nombre"]} ({DATOS_VOLUNTARIADO["programas_activos"]["categoria"]}): {'Disponible' if DATOS_VOLUNTARIADO["programas_activos"]["Lectura_inclusiva"]["disponible"] else 'Agotado'} | Cupos: {DATOS_VOLUNTARIADO["programas_activos"]["Lectura_inclusiva"]["cupos"]}.
+        - {DATOS_VOLUNTARIADO["programas_activos"]["nombre"]} ({DATOS_VOLUNTARIADO["programas_activos"]["categoria"]}): {'Disponible' if DATOS_VOLUNTARIADO["programas_activos"]["Deporte_inclusivo"]["disponible"] else 'Agotado'} | Cupos: {DATOS_VOLUNTARIADO["programas_activos"]["Deporte_inclusivo"]["cupos"]}.
+        - {DATOS_VOLUNTARIADO["programas_activos"]["nombre"]} ({DATOS_VOLUNTARIADO["programas_activos"]["categoria"]}): {'Disponible' if DATOS_VOLUNTARIADO["programas_activos"]["Limpieza_Costera"]["disponible"] else 'Agotado'} | Cupos: {DATOS_VOLUNTARIADO["programas_activos"]["Limpieza_Costera"]["cupos"]}.
     **Accesibilidad**:
-        - Discapacidad Visual: {', '.join(DATOS_VOLUNTARIADO["accesibilidad"]["discapacidad_visual"]) or 'Ningún programa disponible'}.
-        - Discapacidad Auditiva: {', '.join(DATOS_VOLUNTARIADO["accesibilidad"]["discapacidad_auditiva"]) or 'Ningún programa disponible'}.
+        - Discapacidad Visual: {', '.join([DATOS_VOLUNTARIADO["programas_activos"][p]["nombre"] for p in DATOS_VOLUNTARIADO["accesibilidad"]["discapacidad_visual"]]) or 'Ningún programa disponible'}.
+        - Discapacidad Motriz: {', '.join([DATOS_VOLUNTARIADO["programas_activos"][p]["nombre"] for p in DATOS_VOLUNTARIADO["accesibilidad"]["discapacidad_motriz"]]) or 'Ningún programa disponible'}.
+        - Discapacidad Auditiva: {', '.join([DATOS_VOLUNTARIADO["programas_activos"][p]["nombre"] for p in DATOS_VOLUNTARIADO["accesibilidad"]["discapacidad_auditiva"]]) or 'Ningún programa disponible'}.
     {PLATFORM_CONTEXT}
-    """
+    """   
 
     prompt = f"""
     [INST] {contexto_actualizado}
