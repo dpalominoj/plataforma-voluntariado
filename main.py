@@ -16,9 +16,9 @@ from model.models import Usuarios, Notificaciones # Añadir Notificaciones
 from database.datos_iniciales import seed_data
 
 
-app = Flask(__name__, instance_relative_config=True, template_folder='view/templates')
-app.static_folder = 'view/assets'
-app.static_url_path = '/assets'
+app = Flask(__name__, instance_relative_config=True, template_folder='view/templates', static_folder='static', static_url_path='/static')
+# app.static_folder = 'view/assets' # This was causing issues with url_for('static', ...)
+# app.static_url_path = '/assets'   # This was causing issues with url_for('static', ...)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key968')
 default_sqlite_uri = f"sqlite:///{os.path.join(app.instance_path, 'konectai.db')}"
