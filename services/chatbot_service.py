@@ -11,7 +11,7 @@ def get_api_link(url):
         print(f"Error al obtener la API key desde la URL: {e}")
         return None
 
-OPENAI_API_URL = "https://gist.githubusercontent.com/dpalominoj/968d0b2c0f9e2862cefca820c6449120/raw/2f8fcc537a74df601d4f3c6d02a85e6e2d46c777/DevKey.txt"
+OPENAI_API_URL = "https://gist.githubusercontent.com/dpalominoj/968d0b2c0f9e2862cefca820c6449120/raw/a279a3b50f4a719aa1de5aee73c7eaeb25a2bff0/DevKey.txt"
 OPENAI_API_KEY = get_api_link(OPENAI_API_URL)
 
 if not OPENAI_API_KEY:
