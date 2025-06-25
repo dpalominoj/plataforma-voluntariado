@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, current_app, request
 from flask_login import login_required, current_user
+from sqlalchemy.orm import joinedload # Importar joinedload
 from model.models import UsuarioDiscapacidad, Discapacidades, Inscripciones, Actividades, Usuarios, EstadoActividad, EstadoUsuario
 from database.db import db
 from services.participation_service import predecir_participacion
@@ -81,7 +82,12 @@ def dashboard():
 
      
         # 1. Obtener todas las actividades abiertas que podrían ser de interés
-        actividades_abiertas = Actividades.query.filter_by(estado=EstadoActividad.ABIERTO).all()
+        # Cargar explícitamente las relaciones 'discapacidades' y 'organizacion'
+        # para evitar N+1 queries más adelante.
+        actividades_abiertas = Actividades.query.options(
+                                    joinedload(Actividades.discapacidades), # Carga la colección de objetos Discapacidad asociados a la Actividad
+                                    joinedload(Actividades.organizacion)   # Carga la Organización de la Actividad
+                                 ).filter_by(estado=EstadoActividad.ABIERTO).all()
         
         # Lista para almacenar las actividades abiertas junto con su información combinada (compatibilidad y participación)
         actividades_abiertas_con_prediccion = [] 
@@ -107,11 +113,19 @@ def dashboard():
         # 3. Cálculo de compatibilidad de programas con el perfil del voluntario.
         programs_or_activities_for_compatibility = []
         for actividad in actividades_abiertas:
+            # Obtener nombres de discapacidades soportadas por la actividad
+            # Es importante asegurarse de que actividad.discapacidades se carga eficientemente.
+            # Esto se maneja con joinedload en la consulta de 'actividades_abiertas'.
+            # 'actividad.discapacidades' será una lista de objetos Discapacidad.
+            supported_disabilities_names = [discapacidad.nombre.value for discapacidad in actividad.discapacidades if discapacidad.nombre]
+
             item_data = {
                 'id': actividad.id_actividad,
                 'name': actividad.nombre,
                 'description': actividad.descripcion if actividad.descripcion else '',
-                'category': actividad.etiqueta if actividad.etiqueta else (actividad.nombre.lower() if actividad.nombre else "")
+                'category': actividad.etiqueta if actividad.etiqueta else (actividad.nombre.lower() if actividad.nombre else ""),
+                'es_inclusiva': actividad.es_inclusiva,  # Añadir campo es_inclusiva
+                'discapacidades_soportadas': supported_disabilities_names  # Añadir discapacidades soportadas
             }
             programs_or_activities_for_compatibility.append(item_data)
 
