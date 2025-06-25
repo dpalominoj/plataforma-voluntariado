@@ -225,36 +225,5 @@
       copyright 2025 KONECTAi - Voluntariado Inclusivo
     </footer>
 
-    <!-- Chatbot Icon and Menu -->
-    <div x-data="{ openChatbotMenu: false }" class="fixed bottom-4 right-4 z-40">
-      <!-- Chatbot Icon Button -->
-      <button id="mainChatbotButton" @click="openChatbotMenu = !openChatbotMenu" aria-label="Abrir menú del chatbot" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 5.523-4.477 10-10 10S1 17.523 1 12 5.477 2 11 2s10 4.477 10 10z" />
-        </svg>
-      </button>
-
-      <!-- Chatbot Menu -->
-      <div x-show="openChatbotMenu"
-           @click.away="openChatbotMenu = false"
-           class="absolute bottom-16 right-0 mb-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5"
-           x-transition:enter="transition ease-out duration-100"
-           x-transition:enter-start="transform opacity-0 scale-95"
-           x-transition:enter-end="transform opacity-100 scale-100"
-           x-transition:leave="transition ease-in duration-75"
-           x-transition:leave-start="transform opacity-100 scale-100"
-           x-transition:leave-end="transform opacity-0 scale-95"
-           x-cloak>
-        <button id="voiceChatTrigger" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">
-          Chatbot por voz
-        </button>
-        <a href="{{ url_for('main.help_page') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">
-          Chatbot por chat
-        </a>
-      </div>
-    </div>
-    <!-- End Chatbot Icon and Menu -->
-
-    <script src="{{ url_for('static', filename='js/base_chatbot.js') }}" defer></script>
   </body>
 </html>
