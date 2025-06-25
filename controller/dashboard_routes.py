@@ -99,7 +99,8 @@ def dashboard():
             'id': current_user.id_usuario,
             'username': current_user.nombre,
             'interests': [p.nombre_corto for p in current_user.preferencias],
-            'skills': ['writing', 'gardening'],
+            # TODO: Implementar campo de habilidades en el modelo Usuarios y usarlo aquí.
+            'skills': [], # Usar lista vacía hasta que se implementen habilidades de usuario.
             'disabilities': user_disabilities
         }
 

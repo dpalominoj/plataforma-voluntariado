@@ -60,14 +60,14 @@ def get_programs_compatibility(tipo_filter=None, organizacion_filter=None, estad
     if current_user.is_authenticated and current_user.perfil == 'voluntario' and programs:
         user_disabilities = [udp.discapacidad.nombre for udp in current_user.discapacidades_pivot if udp.discapacidad and udp.discapacidad.nombre]
         user_interests = [pref.nombre_corto for pref in current_user.preferencias if pref.nombre_corto]
-        # TODO: Obtener habilidades reales del usuario. Por ahora, se usa una lista placeholder.
-        user_skills_placeholder = ['comunicacion', 'trabajo en equipo']
+        # TODO: Implementar campo de habilidades en el modelo Usuarios y usarlo aquí.
+        user_skills = [] # Usar lista vacía hasta que se implementen habilidades de usuario.
 
         user_profile_data = {
             'id': current_user.id_usuario,
             'username': current_user.nombre,
             'interests': user_interests,
-            'skills': user_skills_placeholder,
+            'skills': user_skills, # Usar la lista de habilidades definida
             'disabilities': user_disabilities
         }
 
@@ -90,24 +90,15 @@ def get_programs_compatibility(tipo_filter=None, organizacion_filter=None, estad
                 # Llamar al servicio de compatibilidad
                 compatibility_scores = get_compatibility_scores(user_profile_data, program_data_for_service)
 
-                # Si se obtuvieron puntajes y el usuario es voluntario, actualizar los objetos del programa
-                if compatibility_scores and current_user.perfil == 'voluntario':
-                    updated_scores_flag = False
+                # Los puntajes de compatibilidad ahora se pasan directamente a la plantilla 'programs.html'
+                # y se calculan bajo demanda en 'program_detail.html'.
+                # Ya no se guardan en program_obj.compatibilidad ni en la BD desde aquí.
+                if compatibility_scores:
                     for program_obj in programs:
                         score = compatibility_scores.get(program_obj.id_actividad)
                         if score is not None:
-                            program_obj.compatibilidad = score # Asignar el nuevo puntaje
-                            updated_scores_flag = True
-                            # Registrar el puntaje (usar logger en producción)
-                            current_app.logger.info(f"Compatibilidad para actividad {program_obj.id_actividad} ({program_obj.nombre}): {program_obj.compatibilidad}")
-
-                    if updated_scores_flag:
-                        try:
-                            db.session.commit() # Guardar cambios en la BD
-                            current_app.logger.info("Puntajes de compatibilidad actualizados en la BD.")
-                        except Exception as e:
-                            db.session.rollback() # Revertir en caso de error
-                            current_app.logger.error(f"Error al guardar puntajes de compatibilidad en la BD: {e}")
+                            # Solo para logging si es necesario, pero no se asigna a program_obj
+                            current_app.logger.info(f"Compatibilidad calculada para actividad {program_obj.id_actividad} ({program_obj.nombre}): {score}")
 
             except Exception as e:
                 # Usar logger para registrar errores del servicio de compatibilidad
@@ -142,8 +133,38 @@ def view_program_detail(program_id):
         flash('Programa no encontrado.', 'danger')
         return redirect(url_for('main.programs')) # Redirigir si no se encuentra
 
+    # Calcular compatibilidad para esta vista específica
+    compatibility_score_detail = None
+    if current_user.is_authenticated and current_user.perfil == 'voluntario':
+        user_disabilities = [udp.discapacidad.nombre for udp in current_user.discapacidades_pivot if udp.discapacidad and udp.discapacidad.nombre]
+        user_interests = [pref.nombre_corto for pref in current_user.preferencias if pref.nombre_corto]
+        # TODO: Implementar campo de habilidades en el modelo Usuarios y usarlo aquí.
+        user_skills = [] # Usar lista vacía consistente
+
+        user_profile_data = {
+            'id': current_user.id_usuario,
+            'username': current_user.nombre,
+            'interests': user_interests,
+            'skills': user_skills,
+            'disabilities': user_disabilities
+        }
+
+        supported_disabilities_names = [d.nombre for d in program.discapacidades if d.nombre]
+        program_data_for_service = {
+            'id': program.id_actividad,
+            'name': program.nombre,
+            'description': program.descripcion,
+            'category': program.etiqueta if program.etiqueta else (program.nombre.lower() if program.nombre else ""),
+            'es_inclusiva': program.es_inclusiva,
+            'discapacidades_soportadas': supported_disabilities_names
+        }
+
+        scores = get_compatibility_scores(user_profile_data, [program_data_for_service])
+        if scores and program.id_actividad in scores:
+            compatibility_score_detail = scores[program.id_actividad]
+
     # Renderizar la plantilla de detalle del programa
-    return render_template('program_detail.html', program=program, title=program.nombre)
+    return render_template('program_detail.html', program=program, title=program.nombre, compatibility_score_detail=compatibility_score_detail)
 
 # Ruta para inscribirse en un programa (requiere login)
 @program_bp.route('/<int:program_id>/enroll', methods=['POST'])
