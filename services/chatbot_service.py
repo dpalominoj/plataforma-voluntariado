@@ -35,7 +35,6 @@ PLATFORM_CONTEXT = """
 Eres un asistente virtual para KONECTAi, una plataforma inclusiva de voluntariado. Responde de manera amable y profesional.
 Información clave:
 - Categorias de Programas: Niños y Adolescentes, Educación y formación, Ambiente y sostenibilidad, Deporte y recreación.
-- Contacto: +51 968 875 239 | ayuda@konectai.org
 """
 
 # d. Modelos válidos API de Hugging Face
