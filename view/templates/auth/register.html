@@ -5,140 +5,147 @@
 {% block title %}Registrarse - KONECTAi{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-    <div class="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+<div class="min-h-screen bg-gradient-to-br from-slate-100 to-sky-100 flex flex-col justify-center items-center py-6 sm:px-6 lg:px-8 px-4">
+    {# Removed max-w-md to allow form to be wider if needed, added items-center to center the form content #}
+    <div class="sm:mx-auto sm:w-full sm:max-w-2xl">
+        <h2 class="mt-6 text-center text-4xl font-extrabold text-slate-800 tracking-tight">
             Crea tu nueva cuenta
         </h2>
     </div>
 
-    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-2xl">
+        <div class="bg-white py-8 px-4 shadow-xl rounded-xl sm:px-10">
             <form method="POST" action="{{ url_for('auth.register') }}" novalidate class="space-y-6">
                 {{ form.hidden_tag() }}
 
-                <div>
-                    {{ form.dni.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                    {{ form.dni(class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-base" + (" border-red-500" if form.dni.errors else ""), placeholder="Tu DNI (8 dígitos)") }}
-                    {% if form.dni.errors %}
-                        <div class="mt-1">
-                            {% for error in form.dni.errors %}<span class="text-sm text-red-500">{{ error }}</span>{% endfor %}
-                        </div>
-                    {% endif %}
+                {# DNI and Nombre in two columns #}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        {{ form.dni.label(class="block text-sm font-medium text-slate-700 mb-1") }}
+                        {{ form.dni(class="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm" + (" border-red-500" if form.dni.errors else ""), placeholder="Tu DNI (8 dígitos)") }}
+                        {% if form.dni.errors %}
+                            <div class="mt-1">
+                                {% for error in form.dni.errors %}<span class="text-xs text-red-500">{{ error }}</span>{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.nombre.label(class="block text-sm font-medium text-slate-700 mb-1") }}
+                        {{ form.nombre(class="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm" + (" border-red-500" if form.nombre.errors else ""), placeholder="Tu nombre completo") }}
+                        {% if form.nombre.errors %}
+                            <div class="mt-1">
+                                {% for error in form.nombre.errors %}<span class="text-xs text-red-500">{{ error }}</span>{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
 
-                <div>
-                    {{ form.nombre.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                    {{ form.nombre(class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-base" + (" border-red-500" if form.nombre.errors else ""), placeholder="Tu nombre completo") }}
-                    {% if form.nombre.errors %}
-                        <div class="mt-1">
-                            {% for error in form.nombre.errors %}<span class="text-sm text-red-500">{{ error }}</span>{% endfor %}
-                        </div>
-                    {% endif %}
+                {# Password and Confirm Password in two columns #}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        {{ form.password.label(class="block text-sm font-medium text-slate-700 mb-1") }}
+                        {{ form.password(class="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm" + (" border-red-500" if form.password.errors else ""), placeholder="Contraseña") }}
+                        {% if form.password.errors %}
+                            <div class="mt-1">
+                                {% for error in form.password.errors %}<span class="text-xs text-red-500">{{ error }}</span>{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.confirm_password.label(class="block text-sm font-medium text-slate-700 mb-1") }}
+                        {{ form.confirm_password(class="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm" + (" border-red-500" if form.confirm_password.errors else ""), placeholder="Confirmar Contraseña") }}
+                        {% if form.confirm_password.errors %}
+                            <div class="mt-1">
+                                {% for error in form.confirm_password.errors %}<span class="text-xs text-red-500">{{ error }}</span>{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
 
+                {# Perfil - Full width #}
                 <div>
-                    {{ form.password.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                    {{ form.password(class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-base" + (" border-red-500" if form.password.errors else ""), placeholder="Contraseña") }}
-                    {% if form.password.errors %}
-                        <div class="mt-1">
-                            {% for error in form.password.errors %}<span class="text-sm text-red-500">{{ error }}</span>{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div>
-                    {{ form.confirm_password.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                    {{ form.confirm_password(class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-base" + (" border-red-500" if form.confirm_password.errors else ""), placeholder="Confirmar Contraseña") }}
-                    {% if form.confirm_password.errors %}
-                        <div class="mt-1">
-                            {% for error in form.confirm_password.errors %}<span class="text-sm text-red-500">{{ error }}</span>{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div>
-                    {{ form.perfil.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                    {{ form.perfil(class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-base" + (" border-red-500" if form.perfil.errors else "")) }}
+                    {{ form.perfil.label(class="block text-sm font-medium text-slate-700 mb-1") }}
+                    {{ form.perfil(class="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm" + (" border-red-500" if form.perfil.errors else "")) }}
                     {% if form.perfil.errors %}
                         <div class="mt-1">
-                            {% for error in form.perfil.errors %}<span class="text-sm text-red-500">{{ error }}</span>{% endfor %}
+                            {% for error in form.perfil.errors %}<span class="text-xs text-red-500">{{ error }}</span>{% endfor %}
                         </div>
                     {% endif %}
                 </div>
 
-                <div>
-                    {{ form.estado_usuario.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                    {{ form.estado_usuario(class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-base" + (" border-red-500" if form.estado_usuario.errors else "")) }}
-                    {% if form.estado_usuario.errors %}
-                        <div class="mt-1">
-                            {% for error in form.estado_usuario.errors %}<span class="text-sm text-red-500">{{ error }}</span>{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
+                {# Estado Usuario field is removed as per requirement (handled in forms.py) #}
 
-                <div>
-                    {{ form.discapacidades.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                    {{ form.discapacidades(class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-base" + (" border-red-500" if form.discapacidades.errors else ""), multiple="multiple") }}
-                    <p class="mt-1 text-sm text-gray-500">Opcional. Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varias opciones.</p>
-                    {% if form.discapacidades.errors %}
-                        <div class="mt-1">
-                            {% for error in form.discapacidades.errors %}<span class="text-sm text-red-500">{{ error }}</span>{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div>
-                    {{ form.preferencias.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                    {{ form.preferencias(class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-base" + (" border-red-500" if form.preferencias.errors else ""), multiple="multiple") }}
-                    <p class="mt-1 text-sm text-gray-500">Opcional. Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varias opciones.</p>
-                    {% if form.preferencias.errors %}
-                        <div class="mt-1">
-                            {% for error in form.preferencias.errors %}<span class="text-sm text-red-500">{{ error }}</span>{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div>
-                    <div class="flex items-center">
-                        {{ form.acepto_politica(class="h-5 w-5 text-purple-600 focus:ring-purple-500 border-gray-400 rounded") }}
-                        <label for="{{ form.acepto_politica.id }}" class="ml-2 block text-sm text-gray-900 cursor-pointer">
-                            Acepto la
-                            <a href="{{ url_for('static', filename='assets/documentos/Politica_de_Privacidad.pdf') }}" target="_blank" rel="noopener noreferrer" class="font-medium text-purple-600 hover:text-purple-500">
-                                Política de Privacidad de Datos Personales
-                            </a>
-                        </label>
+                {# Discapacidades and Preferencias in two columns, responsive #}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        {{ form.discapacidades.label(class="block text-sm font-medium text-slate-700 mb-1") }}
+                        {{ form.discapacidades(class="form-multiselect block w-full mt-1 border-slate-300 rounded-lg shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 sm:text-sm py-3 px-4 h-32 md:h-40" + (" border-red-500" if form.discapacidades.errors else ""), multiple="multiple") }}
+                        <p class="mt-1 text-xs text-slate-500">Opcional. Ctrl/Cmd + click para multiselección.</p>
+                        {% if form.discapacidades.errors %}
+                            <div class="mt-1">
+                                {% for error in form.discapacidades.errors %}<span class="text-xs text-red-500">{{ error }}</span>{% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
-                    {% if form.acepto_politica.errors %}
-                        <div class="mt-1"> {# Removed ml-7. Errors will now be directly under the checkbox line. #}
-                            {% for error in form.acepto_politica.errors %}
-                                <span class="text-sm text-red-500">{{ error }}</span><br>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    <p class="mt-1 text-sm text-gray-500 ml-7">Al marcar esta casilla, confirmas que has leído y aceptas nuestros términos.</p>
+
+                    <div>
+                        {{ form.preferencias.label(class="block text-sm font-medium text-slate-700 mb-1") }}
+                        {{ form.preferencias(class="form-multiselect block w-full mt-1 border-slate-300 rounded-lg shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 sm:text-sm py-3 px-4 h-32 md:h-40" + (" border-red-500" if form.preferencias.errors else ""), multiple="multiple") }}
+                        <p class="mt-1 text-xs text-slate-500">Opcional. Ctrl/Cmd + click para multiselección.</p>
+                        {% if form.preferencias.errors %}
+                            <div class="mt-1">
+                                {% for error in form.preferencias.errors %}<span class="text-xs text-red-500">{{ error }}</span>{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
 
-                <div>
-                    {{ form.submit(class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500") }}
+                {# Acepto Politica - Full width, but with better spacing for responsiveness #}
+                <div class="pt-2 sm:pt-4">
+                    <div class="flex items-start">
+                        {# Increased padding around checkbox for easier tapping on mobile #}
+                        <div class="flex items-center h-5">
+                             {{ form.acepto_politica(class="h-5 w-5 text-sky-600 focus:ring-sky-500 border-slate-400 rounded") }}
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="{{ form.acepto_politica.id }}" class="font-medium text-slate-700 cursor-pointer">
+                                Acepto la
+                                <a href="{{ url_for('static', filename='assets/documentos/Politica_de_Privacidad.pdf') }}" target="_blank" rel="noopener noreferrer" class="font-medium text-sky-600 hover:text-sky-500 underline">
+                                    Política de Privacidad
+                                </a>
+                            </label>
+                             {% if form.acepto_politica.errors %}
+                                <div class="mt-1">
+                                    {% for error in form.acepto_politica.errors %}
+                                        <span class="text-xs text-red-500">{{ error }}</span><br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <p class="text-xs text-slate-500 mt-1">Confirmas que has leído y aceptas nuestros términos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    {{ form.submit(class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition duration-150 ease-in-out") }}
                 </div>
             </form>
 
             <div class="mt-6">
                  <div class="relative">
                     <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-300"></div>
+                        <div class="w-full border-t border-slate-300"></div>
                     </div>
                     <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500">
-                            O
+                        <span class="px-3 bg-white text-slate-500 font-medium">
+                            O continúa con
                         </span>
                     </div>
                 </div>
                 <div class="mt-6 text-center">
-                    <p class="text-base text-gray-600">
+                    <p class="text-sm text-slate-600">
                         ¿Ya tienes una cuenta?
-                        <a href="{{ url_for('auth.login') }}" class="font-medium text-purple-600 hover:text-purple-500">
+                        <a href="{{ url_for('auth.login') }}" class="font-medium text-sky-600 hover:text-sky-500 hover:underline">
                             Inicia Sesión
                         </a>
                     </p>
