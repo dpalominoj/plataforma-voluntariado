@@ -16,7 +16,6 @@
            Crear Programa
         </a>
     </li>
-    {# Add more organizer links as needed, e.g., Manage Volunteers #}
     {#
     <li>
         <a href="{{ url_for('user_dashboard.organizer_manage_volunteers') if 'user_dashboard.organizer_manage_volunteers' in get_flashed_messages(category_filter=['url_exists']) else '#' }}"
@@ -60,28 +59,6 @@
         {% endif %}
     </div>
 
-    <!-- Suggested Notification Times Section -->
-    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h3 class="text-xl font-semibold text-gray-700 mb-4">Horarios Sugeridos para Notificaciones</h3>
-        <div id="notification-suggestions-container">
-            {% if suggested_notification_times %}
-                {% if suggested_notification_times is string %}
-                    <p class="text-gray-600">{{ suggested_notification_times }}</p>
-                {% elif suggested_notification_times is iterable and suggested_notification_times %}
-                    <ul class="list-disc pl-5 space-y-1 text-gray-800">
-                        {% for slot in suggested_notification_times %}
-                            <li>De {{ slot.start_time }} a {{ slot.end_time }}</li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                     <p class="text-gray-600">No hay sugerencias de horarios disponibles en este momento.</p>
-                {% endif %}
-            {% else %}
-                <p class="text-gray-600">Cargando sugerencias o no disponibles...</p> {# Mensaje genérico si la variable no está definida #}
-            {% endif %}
-        </div>
-    </div>
-
     {# Display Created Programs #}
     <div class="bg-white p-6 rounded-lg shadow-md mb-8">
         <h3 class="text-xl font-semibold text-gray-700 mb-4">Mis Programas Creados</h3>
@@ -113,65 +90,34 @@
         {% endif %}
     </div>
 
-    {# Model Prediction Details Section #}
+    <!-- Suggested Notification Times Section -->
     <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h3 class="text-xl font-semibold text-gray-700 mb-4">Detalles del Modelo de Predicción de Participación</h3>
-        {% set first_item_with_metrics = none %}
-        {% if actividades_con_prediccion %}
-            {% for item in actividades_con_prediccion %}
-                {% if item.metricas and item.tree_dot_file and not first_item_with_metrics %}
-                    {% set first_item_with_metrics = item %}
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-
-        {% if first_item_with_metrics %}
-            <div class="space-y-2">
-                <div>
-                    <h4 class="text-md font-medium text-gray-600">Métricas del Modelo</h4>
-                    <p class="text-sm text-gray-500">Precisión (Accuracy) en el conjunto de prueba:
-                        <span class="font-semibold">
-                        {% if first_item_with_metrics.metricas.accuracy is number %}
-                            {{ first_item_with_metrics.metricas.accuracy | round(3) }}
-                        {% else %}
-                            {{ first_item_with_metrics.metricas.accuracy }} {# Display as is if not a number, e.g. "N/A" or error string #}
-                        {% endif %}
-                        </span>
-                    </p>
-                    <p class="text-xs text-gray-400 italic">Nota: Las métricas se basan en la última ejecución del modelo durante la carga de esta página, utilizando datos históricos disponibles hasta ese momento. El modelo se re-entrena con cada solicitud de predicción.</p>
-                </div>
-
-                {% if first_item_with_metrics.tree_dot_file %}
-                <div>
-                    <h4 class="text-md font-medium text-gray-600">Visualización del Árbol de Decisión (Primer Árbol del Bosque Aleatorio)</h4>
-                    <p class="text-sm text-gray-500">Se ha generado un archivo DOT para la visualización del árbol:
-                       <code class="text-xs bg-gray-100 p-1 rounded">{{ first_item_with_metrics.tree_dot_file }}</code>.
-                    </p>
-                    <p class="text-sm text-gray-500 mt-1">Para convertir este archivo .dot a una imagen (e.g., PNG) usando Graphviz, puedes ejecutar el siguiente comando en tu terminal (si tienes Graphviz instalado):
-                       <br><code class="text-xs bg-gray-100 p-1 rounded">dot -Tpng {{ first_item_with_metrics.tree_dot_file }} -o tree.png && xdg-open tree.png</code>
-                    </p>
-                    <p class="text-xs text-gray-400 italic mt-1">La visualización representa uno de los árboles del modelo RandomForest. El archivo <code>{{ first_item_with_metrics.tree_dot_file }}</code> se guarda en el directorio raíz de la aplicación en el servidor.</p>
-                </div>
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Horarios Sugeridos para Notificaciones</h3>
+        <div id="notification-suggestions-container">
+            {% if suggested_notification_times %}
+                {% if suggested_notification_times is string %}
+                    <p class="text-gray-600">{{ suggested_notification_times }}</p>
+                {% elif suggested_notification_times is iterable and suggested_notification_times %}
+                    <ul class="list-disc pl-5 space-y-1 text-gray-800">
+                        {% for slot in suggested_notification_times %}
+                            <li>De {{ slot.start_time }} a {{ slot.end_time }}</li>
+                        {% endfor %}
+                    </ul>
                 {% else %}
-                    <p class="text-sm text-gray-500">No se generó archivo de visualización del árbol (Graphviz podría no estar disponible o no se generó el árbol para esta predicción).</p>
+                     <p class="text-gray-600">No hay sugerencias de horarios disponibles en este momento.</p>
                 {% endif %}
-            </div>
-        {% else %}
-            <p class="text-sm text-gray-500">No hay detalles del modelo de predicción disponibles. Esto puede ocurrir si no hay actividades creadas, si las actividades existentes no tienen suficientes datos para el entrenamiento del modelo, o si hubo un error en la generación de la predicción.</p>
-        {% endif %}
+            {% else %}
+                <p class="text-gray-600">Cargando sugerencias o no disponibles...</p> {# Mensaje genérico si la variable no está definida #}
+            {% endif %}
+        </div>
     </div>
-
-    {# Las secciones "Actividades Populares Recomendadas a Usuarios" y "Solicitudes de Voluntarios (Marcador de posición)" han sido eliminadas. #}
 
 {% endblock %}
 
 {% block extra_js %}
-{# El bloque extra_js se mantiene por si se necesita JavaScript para otras funcionalidades,
-   pero el script específico para cargar horarios sugeridos vía fetch ha sido eliminado
-   ya que ahora los datos se pasan directamente desde el backend. #}
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Cualquier otro JavaScript específico para el dashboard del organizador puede ir aquí.
     console.log("Dashboard del organizador cargado.");
 });
 </script>
