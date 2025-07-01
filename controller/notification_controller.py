@@ -99,11 +99,11 @@ def api_sugerir_horario():
 
     # --- Data Collection from Synthetic CSV ---
     try:
-        # Assuming the CSV file is in the root directory of the project
+        # Assuming the CSV file is in the database/ directory of the project
         # In a real application, this path should be configured properly
-        df_synthetic = pd.read_csv('synthetic_volunteer_data.csv')
+        df_synthetic = pd.read_csv('database/synthetic_volunteer_data.csv')
     except FileNotFoundError:
-        return jsonify({"sugerencias": [], "mensaje": "No se encontró el archivo de datos sintéticos."}), 500
+        return jsonify({"sugerencias": [], "mensaje": "No se encontró el archivo de datos sintéticos en database/."}), 500
     except Exception as e:
         # Log the exception e
         return jsonify({"sugerencias": [], "mensaje": f"Error al leer los datos sintéticos: {str(e)}"}), 500
