@@ -76,20 +76,37 @@ def dashboard():
             organizer_primary_org_id = first_org.id_organizacion
 
 
-        suggested_notification_times = "No hay sugerencias de horarios disponibles en este momento."
-        if organizer_primary_org_id is not None:
+        suggested_notification_times = "No hay sugerencias de horarios disponibles en este momento." # Default message
+        if organizer_primary_org_id is not None: # Asegurarse de que hay una organización
             try:
-                prediction_service = PredictionService(threshold=0.5) # Umbral de ejemplo
-                # Pasar el ID de la organización al servicio
-                suggested_times_result = prediction_service.get_optimal_time_slots(organizer_primary_org_id)
+                # El constructor de PredictionService ya no toma 'threshold'
+                prediction_service = PredictionService()
+                # Pasamos organizer_primary_org_id aunque el servicio actualmente no lo usa
+                # para la lógica del CSV, pero podría ser útil para futuras mejoras o logging.
+                suggested_times_result = prediction_service.get_optimal_time_slots(
+                    organizer_id=organizer_primary_org_id
+                )
 
-                if isinstance(suggested_times_result, str): # Mensaje de error o baja precisión
+                # suggested_times_result ahora es una lista de diccionarios (si tiene éxito)
+                # o un string (si hay error o mensaje informativo).
+                if isinstance(suggested_times_result, str):
+                    # Es un mensaje de error/info del servicio (e.g., datos insuficientes, error de archivo)
                     suggested_notification_times = suggested_times_result
-                elif suggested_times_result: # Lista de diccionarios de horarios
+                elif isinstance(suggested_times_result, list) and suggested_times_result:
+                    # Es una lista de slots, la pasamos directamente
                     suggested_notification_times = suggested_times_result
-                # Si está vacío pero no es un string, se mantendrá el mensaje por defecto.
+                # Si suggested_times_result es una lista vacía, el mensaje por defecto
+                # "No hay sugerencias de horarios disponibles en este momento." se mantendrá,
+                # lo cual es un comportamiento aceptable.
+                # Opcionalmente, podríamos poner un mensaje más específico si la lista está vacía:
+                # elif isinstance(suggested_times_result, list) and not suggested_times_result:
+                #     suggested_notification_times = "No se encontraron bloques horarios con actividad significativa."
+
             except Exception as e:
-                current_app.logger.error(f"Error al obtener horarios sugeridos para organizador {current_user.id_usuario} (org_id {organizer_primary_org_id}): {e}")
+                current_app.logger.error(f"Excepción crítica al obtener horarios sugeridos para organizador {current_user.id_usuario} (org_id {organizer_primary_org_id}): {e}")
+                # Mantener el mensaje por defecto en caso de excepción no controlada por el servicio
+                # o asignar uno específico de error si se prefiere.
+                suggested_notification_times = "Error al calcular las sugerencias de horarios."
 
         return render_template('organizer_dashboard.html',
                                title="Panel de Organizador",
