@@ -1,0 +1,170 @@
+user_id,timestamp,notification_id,action,user_profile
+1,2023-01-15 08:05:00,N001,sent,early_bird
+1,2023-01-15 08:10:00,N001,opened,early_bird
+1,2023-01-15 08:12:00,N001,clicked,early_bird
+2,2023-01-15 22:30:00,N002,sent,night_owl
+2,2023-01-15 22:35:00,N002,opened,night_owl
+3,2023-01-15 13:00:00,N003,sent,worker
+3,2023-01-15 13:05:00,N003,opened,worker
+4,2023-01-15 17:45:00,N004,sent,casual
+4,2023-01-15 18:00:00,N004,opened,casual
+1,2023-01-16 07:55:00,N005,sent,early_bird
+1,2023-01-16 08:00:00,N005,opened,early_bird
+2,2023-01-16 23:00:00,N006,sent,night_owl
+2,2023-01-16 23:05:00,N006,opened,night_owl
+2,2023-01-16 23:07:00,N006,clicked,night_owl
+3,2023-01-16 12:30:00,N007,sent,worker
+4,2023-01-16 16:00:00,N008,sent,casual
+4,2023-01-16 19:10:00,N008,opened,casual
+# --- Early Bird Pattern (More data) ---
+1,2023-01-17 07:30:00,N009,sent,early_bird
+1,2023-01-17 07:35:00,N009,opened,early_bird
+1,2023-01-17 07:36:00,N009,clicked,early_bird
+1,2023-01-18 08:00:00,N010,sent,early_bird
+1,2023-01-18 08:05:00,N010,opened,early_bird
+1,2023-01-19 07:45:00,N011,sent,early_bird
+1,2023-01-19 07:50:00,N011,opened,early_bird
+1,2023-01-19 07:51:00,N011,clicked,early_bird
+1,2023-01-20 08:15:00,N012,sent,early_bird
+1,2023-01-20 08:20:00,N012,opened,early_bird
+5,2023-01-21 06:00:00,N013,sent,early_bird
+5,2023-01-21 06:05:00,N013,opened,early_bird
+5,2023-01-21 06:07:00,N013,clicked,early_bird
+5,2023-01-22 06:30:00,N014,sent,early_bird
+5,2023-01-22 06:35:00,N014,opened,early_bird
+# --- Night Owl Pattern (More data) ---
+2,2023-01-17 21:50:00,N015,sent,night_owl
+2,2023-01-17 21:55:00,N015,opened,night_owl
+2,2023-01-18 22:10:00,N016,sent,night_owl
+2,2023-01-18 22:15:00,N016,opened,night_owl
+2,2023-01-18 22:17:00,N016,clicked,night_owl
+2,2023-01-19 23:30:00,N017,sent,night_owl
+2,2023-01-19 23:35:00,N017,opened,night_owl
+6,2023-01-20 00:30:00,N018,sent,night_owl
+6,2023-01-20 00:35:00,N018,opened,night_owl
+6,2023-01-20 00:36:00,N018,clicked,night_owl
+6,2023-01-21 01:00:00,N019,sent,night_owl
+6,2023-01-21 01:05:00,N019,opened,night_owl
+# --- Worker Pattern (More data, lunch time and after work) ---
+3,2023-01-17 12:45:00,N020,sent,worker
+3,2023-01-17 12:50:00,N020,opened,worker
+3,2023-01-17 18:30:00,N021,sent,worker
+3,2023-01-17 18:35:00,N021,opened,worker
+3,2023-01-17 18:36:00,N021,clicked,worker
+7,2023-01-18 13:15:00,N022,sent,worker
+7,2023-01-18 13:20:00,N022,opened,worker
+7,2023-01-19 19:00:00,N023,sent,worker
+7,2023-01-19 19:05:00,N023,opened,worker
+7,2023-01-19 19:07:00,N023,clicked,worker
+# --- Casual Pattern (More data, varied times) ---
+4,2023-01-17 10:00:00,N024,sent,casual
+4,2023-01-17 10:15:00,N024,opened,casual
+4,2023-01-18 15:30:00,N025,sent,casual
+4,2023-01-18 15:35:00,N025,opened,casual
+4,2023-01-18 15:36:00,N025,clicked,casual
+8,2023-01-19 20:00:00,N026,sent,casual
+8,2023-01-19 20:05:00,N026,opened,casual
+8,2023-01-20 11:30:00,N027,sent,casual
+8,2023-01-20 11:35:00,N027,opened,casual
+8,2023-01-20 11:37:00,N027,clicked,casual
+# --- Simulate interactions for ~3 months (additional data) ---
+# User 1 (Early Bird)
+1,2023-02-01 07:00:00,N101,sent,early_bird
+1,2023-02-01 07:05:00,N101,opened,early_bird
+1,2023-02-01 07:06:00,N101,clicked,early_bird
+1,2023-02-05 08:10:00,N102,sent,early_bird
+1,2023-02-05 08:15:00,N102,opened,early_bird
+1,2023-02-10 07:30:00,N103,sent,early_bird
+1,2023-02-10 07:35:00,N103,opened,early_bird
+1,2023-02-10 07:37:00,N103,clicked,early_bird
+1,2023-03-01 07:50:00,N104,sent,early_bird
+1,2023-03-01 07:55:00,N104,opened,early_bird
+# User 2 (Night Owl)
+2,2023-02-03 22:00:00,N201,sent,night_owl
+2,2023-02-03 22:05:00,N201,opened,night_owl
+2,2023-02-03 22:08:00,N201,clicked,night_owl
+2,2023-02-08 23:15:00,N202,sent,night_owl
+2,2023-02-08 23:20:00,N202,opened,night_owl
+2,2023-02-15 00:05:00,N203,sent,night_owl # Next day early hours
+2,2023-02-15 00:10:00,N203,opened,night_owl
+2,2023-03-05 22:45:00,N204,sent,night_owl
+2,2023-03-05 22:50:00,N204,opened,night_owl
+2,2023-03-05 22:51:00,N204,clicked,night_owl
+# User 3 (Worker)
+3,2023-02-02 12:30:00,N301,sent,worker
+3,2023-02-02 12:35:00,N301,opened,worker
+3,2023-02-07 18:00:00,N302,sent,worker
+3,2023-02-07 18:05:00,N302,opened,worker
+3,2023-02-07 18:06:00,N302,clicked,worker
+3,2023-02-14 13:00:00,N303,sent,worker
+3,2023-02-14 13:05:00,N303,opened,worker
+3,2023-03-03 12:50:00,N304,sent,worker
+3,2023-03-03 12:55:00,N304,opened,worker
+# User 4 (Casual)
+4,2023-02-04 16:30:00,N401,sent,casual
+4,2023-02-04 16:35:00,N401,opened,casual
+4,2023-02-09 11:00:00,N402,sent,casual
+4,2023-02-09 11:05:00,N402,opened,casual
+4,2023-02-09 11:07:00,N402,clicked,casual
+4,2023-02-16 19:45:00,N403,sent,casual
+4,2023-02-16 19:50:00,N403,opened,casual
+4,2023-03-06 14:00:00,N404,sent,casual
+4,2023-03-06 14:05:00,N404,opened,casual
+# Adding more varied interactions - some sent but not opened, different profiles
+# User 5 (Early bird, sometimes misses)
+5,2023-02-10 06:45:00,N501,sent,early_bird
+5,2023-02-12 07:00:00,N502,sent,early_bird
+5,2023-02-12 07:03:00,N502,opened,early_bird # Opens this one
+# User 6 (Night owl, less frequent clicks)
+6,2023-02-11 23:50:00,N601,sent,night_owl
+6,2023-02-11 23:55:00,N601,opened,night_owl
+6,2023-02-18 00:20:00,N602,sent,night_owl # Next day early hours
+6,2023-02-18 00:25:00,N602,opened,night_owl
+# User 7 (Worker, checks notifications later)
+7,2023-02-13 13:30:00,N701,sent,worker
+7,2023-02-13 17:30:00,N701,opened,worker # Opened much later
+7,2023-02-13 17:32:00,N701,clicked,worker
+7,2023-02-20 18:50:00,N702,sent,worker
+7,2023-02-20 20:00:00,N702,opened,worker
+# User 8 (Casual, sometimes active, sometimes not)
+8,2023-02-17 10:30:00,N801,sent,casual
+8,2023-02-22 17:00:00,N802,sent,casual
+8,2023-02-22 17:05:00,N802,opened,casual
+8,2023-02-22 17:06:00,N802,clicked,casual
+# --- More data for month 3 to ensure enough volume ---
+# Early Birds
+1,2023-03-10 07:15:00,N105,sent,early_bird
+1,2023-03-10 07:20:00,N105,opened,early_bird
+5,2023-03-12 06:50:00,N503,sent,early_bird
+5,2023-03-12 06:55:00,N503,opened,early_bird
+5,2023-03-12 06:56:00,N503,clicked,early_bird
+1,2023-03-15 08:00:00,N106,sent,early_bird # No open
+5,2023-03-18 07:00:00,N504,sent,early_bird
+5,2023-03-18 07:05:00,N504,opened,early_bird
+# Night Owls
+2,2023-03-11 22:20:00,N205,sent,night_owl
+2,2023-03-11 22:25:00,N205,opened,night_owl
+6,2023-03-14 00:40:00,N603,sent,night_owl
+6,2023-03-14 00:45:00,N603,opened,night_owl
+6,2023-03-14 00:46:00,N603,clicked,night_owl
+2,2023-03-17 23:00:00,N206,sent,night_owl # No open
+6,2023-03-20 01:10:00,N604,sent,night_owl
+6,2023-03-20 01:15:00,N604,opened,night_owl
+# Workers
+3,2023-03-13 12:55:00,N305,sent,worker
+3,2023-03-13 13:00:00,N305,opened,worker
+7,2023-03-16 18:40:00,N703,sent,worker
+7,2023-03-16 18:45:00,N703,opened,worker
+7,2023-03-16 18:47:00,N703,clicked,worker
+3,2023-03-19 13:10:00,N306,sent,worker # No open
+7,2023-03-22 19:15:00,N704,sent,worker
+7,2023-03-22 19:20:00,N704,opened,worker
+# Casuals
+4,2023-03-09 15:00:00,N405,sent,casual
+4,2023-03-09 15:05:00,N405,opened,casual
+8,2023-03-12 11:45:00,N803,sent,casual
+8,2023-03-12 11:50:00,N803,opened,casual
+8,2023-03-12 11:51:00,N803,clicked,casual
+4,2023-03-15 18:00:00,N406,sent,casual # No open
+8,2023-03-21 10:00:00,N804,sent,casual
+8,2023-03-21 10:05:00,N804,opened,casual
