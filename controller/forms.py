@@ -11,11 +11,12 @@ class RegistrationForm(FlaskForm):
     confirm_password = PasswordField('Confirmar Contraseña',
                                      validators=[DataRequired(), EqualTo('password')])
     perfil = SelectField('Perfil',
-                       choices=[('voluntario', 'Voluntario'), ('organizador', 'Organizador'), ('administrador', 'Administrador')],
+                       choices=[('voluntario', 'Voluntario'), ('organizador', 'Organizador')],
                        validators=[DataRequired()])
-    estado_usuario = SelectField('Estado',
-                                 choices=[('activo', 'Activo'), ('inactivo', 'Inactivo'), ('suspendido', 'Suspendido'), ('bloqueado', 'Bloqueado')],
-                                 validators=[DataRequired()], default='activo')
+    # El campo estado_usuario se manejará internamente o por administradores, no se mostrará en el formulario de registro público.
+    # estado_usuario = SelectField('Estado',
+    #                              choices=[('activo', 'Activo'), ('inactivo', 'Inactivo'), ('suspendido', 'Suspendido'), ('bloqueado', 'Bloqueado')],
+    #                              validators=[DataRequired()], default='activo')
     discapacidades = SelectMultipleField('Discapacidades', validators=[Optional()])
     preferencias = SelectMultipleField('Preferencias', validators=[Optional()])
     acepto_politica = BooleanField('Acepto la política de privacidad', validators=[DataRequired(message="Debe aceptar la política de privacidad.")])
